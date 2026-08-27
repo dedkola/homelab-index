@@ -1,6 +1,6 @@
 # Homelab Index
 
-Next.js 16 project for a self-hosted homelab dashboard.
+Next.js 16 App Router project for a self-hosted homelab dashboard.
 
 ## Prototype
 
