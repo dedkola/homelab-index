@@ -8,7 +8,9 @@ import { LineChart } from "echarts/charts";
 import {
   AriaComponent,
   AxisPointerComponent,
+  BrushComponent,
   GridComponent,
+  ToolboxComponent,
   TooltipComponent,
 } from "echarts/components";
 import * as echarts from "echarts/core";
@@ -21,7 +23,9 @@ echarts.use([
   LineChart,
   AriaComponent,
   AxisPointerComponent,
+  BrushComponent,
   GridComponent,
+  ToolboxComponent,
   TooltipComponent,
   CanvasRenderer,
 ]);
