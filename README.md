@@ -94,5 +94,4 @@ src/lib/                         Environment, HTTP, and formatting utilities
 tests/unit/                       Pure unit tests
 tests/integration/                Provider and snapshot contract tests
 tests/e2e/                        4K browser smoke coverage
-prototype/index.html              Approved visual reference
 ```

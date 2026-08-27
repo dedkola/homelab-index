@@ -12,10 +12,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Approved design contract
 
-- `prototype/index.html` is the approved visual source of truth. Preserve its layout, density, spacing, chart treatment, and restrained Cloudflare-style character unless the user explicitly approves a redesign.
+- The current dashboard implementation is the approved visual source of truth. Preserve its layout, density, spacing, chart treatment, and restrained Cloudflare-style character unless the user explicitly approves a redesign.
 - Keep the page hierarchy: tiny header, Core systems, LAN workloads, Quick links, tiny footer. The primary target is a one-screen 3840x2160 dashboard on a 32-inch display, with responsive behavior for smaller screens.
 - Do not add explanatory, promotional, onboarding, or helper copy inside dashboard blocks. Labels, names, addresses, states, metrics, units, and terse errors are allowed.
-- Preserve the prototype signature: Proxmox and Unraid are paired as the primary telemetry surface, joined by the compact network-flow marker.
+- Preserve the approved signature: Proxmox and Unraid are paired as the primary telemetry surface, joined by the compact network-flow marker.
 
 ## Required UI system
 
@@ -33,7 +33,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - blue `#0f61d8`
   - green `#16864b`
   - purple `#7259c9`
-- Prefer hairline borders, compact radii, quiet shadows, tabular data, and restrained motion. Avoid decorative gradients, glass-heavy effects, oversized headings, pill-heavy layouts, and decorative copy; Kumo chart fills are allowed when they match the approved prototype.
+- Prefer hairline borders, compact radii, quiet shadows, tabular data, and restrained motion. Avoid decorative gradients, glass-heavy effects, oversized headings, pill-heavy layouts, and decorative copy; Kumo chart fills are allowed when they match the approved dashboard.
 
 ## Architecture and quality
 
