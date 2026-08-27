@@ -23,6 +23,7 @@ COPY . .
 
 ENV DASHBOARD_MODE=mock
 
+RUN mkdir -p public
 RUN pnpm build
 
 FROM node:24-alpine AS runner
