@@ -18,11 +18,9 @@ cp .env.example .env
 pnpm dev
 ```
 
-Mock mode is enabled by default and requires no homelab access. Open [http://localhost:3000](http://localhost:3000).
+Configure the provider values in `.env`, then open [http://localhost:3000](http://localhost:3000). The dashboard always requests live provider data; missing or unreachable providers are shown as degraded.
 
-## Live data
-
-Set `DASHBOARD_MODE=live` in `.env` and configure both providers.
+## Provider configuration
 
 ### Proxmox
 

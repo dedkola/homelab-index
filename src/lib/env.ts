@@ -8,7 +8,6 @@ const booleanString = z
   .transform((value) => value === "true");
 
 const runtimeEnvironmentSchema = z.object({
-  DASHBOARD_MODE: z.enum(["mock", "live"]).default("mock"),
   DASHBOARD_POLL_INTERVAL_MS: z.coerce
     .number()
     .int()

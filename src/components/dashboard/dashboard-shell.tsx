@@ -72,7 +72,7 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             <SectionHeading
               id="core-systems-title"
               title="Core systems"
-              meta={`${snapshot.mode} / ${pollingSeconds}s`}
+              meta={`${pollingSeconds}s`}
             />
             <div className="core-grid">
               {snapshot.systems.map((system) => (
@@ -124,9 +124,6 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             </Text>
             <Text as="span" variant="mono-secondary">
               Last poll {formatClock(snapshot.generatedAt)}
-            </Text>
-            <Text as="span" variant="mono-secondary">
-              {snapshot.mode}
             </Text>
           </div>
         </footer>

@@ -393,6 +393,12 @@ button {
   outline: none;
 }
 
+.metric-chart-empty {
+  display: grid;
+  place-items: center;
+  color: var(--quiet);
+}
+
 .metric-footer {
   display: flex;
   min-height: 20px;

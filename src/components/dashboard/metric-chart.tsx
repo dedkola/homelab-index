@@ -4,6 +4,7 @@ import {
   ChartLegend,
   TimeseriesChart,
 } from "@cloudflare/kumo/components/chart";
+import { Text } from "@cloudflare/kumo";
 import { LineChart } from "echarts/charts";
 import {
   AriaComponent,
@@ -91,6 +92,7 @@ export function MetricChart({
       })),
     [series],
   );
+  const hasData = series.some((item) => item.data.length > 0);
 
   return (
     <section className="metric-panel" aria-label={label}>
@@ -105,19 +107,27 @@ export function MetricChart({
         <div className="metric-detail">{detail}</div>
       </div>
       <div className="metric-chart">
-        <TimeseriesChart
-          echarts={echarts}
-          isDarkMode={false}
-          data={chartData}
-          height={height}
-          xAxisTickCount={2}
-          xAxisTickFormat={tickTime}
-          yAxisTickCount={3}
-          yAxisTickFormat={(point) => Math.round(point).toString()}
-          tooltipValueFormat={tooltipValueFormat}
-          tooltipFollowCursor="x"
-          ariaDescription={`${label} history`}
-        />
+        {hasData ? (
+          <TimeseriesChart
+            echarts={echarts}
+            isDarkMode={false}
+            data={chartData}
+            height={height}
+            xAxisTickCount={2}
+            xAxisTickFormat={tickTime}
+            yAxisTickCount={3}
+            yAxisTickFormat={(point) => Math.round(point).toString()}
+            tooltipValueFormat={tooltipValueFormat}
+            tooltipFollowCursor="x"
+            ariaDescription={`${label} history`}
+          />
+        ) : (
+          <div className="metric-chart-empty" style={{ height }}>
+            <Text as="span" variant="mono-secondary">
+              No data
+            </Text>
+          </div>
+        )}
       </div>
       <div className="metric-footer">{footer}</div>
     </section>

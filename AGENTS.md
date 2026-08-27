@@ -40,7 +40,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Use Next.js 16 App Router. Prefer Server Components for reads and small client islands only for charts, polling, or browser-only behavior.
 - Keep Proxmox and Unraid credentials server-only. Never expose tokens, passwords, or private API endpoints through `NEXT_PUBLIC_*` variables or serialized props.
 - Keep provider integrations behind typed adapters and normalize them into shared dashboard models. The UI must not depend directly on provider response shapes.
-- Keep mock mode deterministic so local development, screenshots, smoke tests, and CI do not need homelab access.
+- Use provider-backed runtime data only. Missing or unreachable providers must surface as unavailable or degraded; never substitute fabricated telemetry.
 - Preserve clean module boundaries under `src/components`, `src/features`, and `src/lib`; avoid monolithic page components.
 - Run Prettier, ESLint, type checking, unit/integration tests, production build, and Playwright smoke coverage for material changes. Verify the real 3840x2160 browser render for visual changes.
 - Docker deployment must use Next.js standalone output, a non-root runtime user, a health check, and `.env`-based configuration.

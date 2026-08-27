@@ -5,24 +5,24 @@ export type Availability = "up" | "down" | "unknown";
 export type TimeSeriesPoint = [timestamp: number, value: number];
 
 export interface CpuMetric {
-  percent: number;
-  cores: number;
-  threads: number;
+  percent: number | null;
+  cores: number | null;
+  threads: number | null;
   history: TimeSeriesPoint[];
 }
 
 export interface MemoryMetric {
-  percent: number;
-  usedBytes: number;
-  totalBytes: number;
+  percent: number | null;
+  usedBytes: number | null;
+  totalBytes: number | null;
   history: TimeSeriesPoint[];
 }
 
 export interface NetworkMetric {
-  rxBytesPerSecond: number;
-  txBytesPerSecond: number;
-  totalRxBytes: number;
-  totalTxBytes: number;
+  rxBytesPerSecond: number | null;
+  txBytesPerSecond: number | null;
+  totalRxBytes: number | null;
+  totalTxBytes: number | null;
   rxHistory: TimeSeriesPoint[];
   txHistory: TimeSeriesPoint[];
 }
@@ -33,7 +33,7 @@ export interface CoreSystem {
   address: string;
   version: string;
   status: Availability;
-  uptimeSeconds: number;
+  uptimeSeconds: number | null;
   cpu: CpuMetric;
   memory: MemoryMetric;
   network: NetworkMetric;
@@ -80,7 +80,6 @@ export interface DashboardIssue {
 }
 
 export interface DashboardSnapshot {
-  mode: "mock" | "live";
   generatedAt: string;
   pollIntervalMs: number;
   networkLinkLabel: string;

@@ -9,7 +9,6 @@ vi.mock("@/lib/http", () => ({
 }));
 
 const environment: RuntimeEnvironment = {
-  DASHBOARD_MODE: "live",
   DASHBOARD_POLL_INTERVAL_MS: 30_000,
   PROVIDER_TIMEOUT_MS: 8_000,
   PROXMOX_API_URL: "https://pve.local:8006",

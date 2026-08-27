@@ -21,20 +21,27 @@ interface CoreSystemCardProps {
   system: CoreSystem;
 }
 
-function peak(points: [number, number][]): number {
-  return points.reduce((highest, [, value]) => Math.max(highest, value), 0);
+function peak(points: [number, number][]): number | null {
+  return points.length === 0
+    ? null
+    : points.reduce((highest, [, value]) => Math.max(highest, value), 0);
 }
 
 export function CoreSystemCard({ system }: CoreSystemCardProps) {
-  const networkRate = formatBytesPerSecond(
-    system.network.rxBytesPerSecond + system.network.txBytesPerSecond,
-  );
+  const cpuPeak = peak(system.cpu.history);
+  const { rxBytesPerSecond, txBytesPerSecond } = system.network;
+  const networkRate =
+    rxBytesPerSecond !== null && txBytesPerSecond !== null
+      ? formatBytesPerSecond(rxBytesPerSecond + txBytesPerSecond)
+      : { value: "—", unit: "" };
   const networkTotal =
-    system.network.totalRxBytes + system.network.totalTxBytes;
-  const freeMemory = Math.max(
-    0,
-    system.memory.totalBytes - system.memory.usedBytes,
-  );
+    system.network.totalRxBytes === null || system.network.totalTxBytes === null
+      ? null
+      : system.network.totalRxBytes + system.network.totalTxBytes;
+  const freeMemory =
+    system.memory.totalBytes === null || system.memory.usedBytes === null
+      ? null
+      : Math.max(0, system.memory.totalBytes - system.memory.usedBytes);
   const statusVariant =
     system.status === "up"
       ? "success"
@@ -68,7 +75,9 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
               </Text>
               <span>/</span>
               <Text as="span" variant="mono-secondary">
-                {system.cpu.threads} threads
+                {system.cpu.threads === null
+                  ? "—"
+                  : `${system.cpu.threads} threads`}
               </Text>
             </div>
           </div>
@@ -84,22 +93,30 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
       <LayerCard.Primary className="system-metrics">
         <MetricChart
           label="CPU load"
-          value={system.cpu.percent.toFixed(1)}
-          unit="%"
+          value={
+            system.cpu.percent === null ? "—" : system.cpu.percent.toFixed(1)
+          }
+          unit={system.cpu.percent === null ? "" : "%"}
           detail={
-            <>
-              {system.cpu.cores} cores
-              <br />
-              {system.cpu.threads} threads
-            </>
+            system.cpu.cores === null || system.cpu.threads === null ? (
+              "—"
+            ) : (
+              <>
+                {system.cpu.cores} cores
+                <br />
+                {system.cpu.threads} threads
+              </>
+            )
           }
           series={[
             { name: "CPU", color: COLORS.orange, data: system.cpu.history },
           ]}
           footer={
             <>
-              <span>24h</span>
-              <span>Peak {peak(system.cpu.history).toFixed(1)}%</span>
+              <span>{system.cpu.history.length > 0 ? "24h" : "No data"}</span>
+              <span>
+                Peak {cpuPeak === null ? "—" : `${cpuPeak.toFixed(1)}%`}
+              </span>
             </>
           }
           tooltipValueFormat={(value) => `${value.toFixed(1)}%`}
@@ -107,22 +124,35 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
 
         <MetricChart
           label="Memory"
-          value={system.memory.percent.toFixed(1)}
-          unit="%"
+          value={
+            system.memory.percent === null
+              ? "—"
+              : system.memory.percent.toFixed(1)
+          }
+          unit={system.memory.percent === null ? "" : "%"}
           detail={
-            <>
-              {formatBytes(system.memory.usedBytes)}
-              <br />
-              {formatBytes(system.memory.totalBytes)}
-            </>
+            system.memory.usedBytes === null ||
+            system.memory.totalBytes === null ? (
+              "—"
+            ) : (
+              <>
+                {formatBytes(system.memory.usedBytes)}
+                <br />
+                {formatBytes(system.memory.totalBytes)}
+              </>
+            )
           }
           series={[
             { name: "Memory", color: COLORS.blue, data: system.memory.history },
           ]}
           footer={
             <>
-              <span>24h</span>
-              <span>Free {formatBytes(freeMemory)}</span>
+              <span>
+                {system.memory.history.length > 0 ? "24h" : "No data"}
+              </span>
+              <span>
+                Free {freeMemory === null ? "—" : formatBytes(freeMemory)}
+              </span>
             </>
           }
           tooltipValueFormat={(value) => `${value.toFixed(1)}%`}
@@ -134,7 +164,7 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
           unit={networkRate.unit}
           detail={
             <>
-              {formatBytes(networkTotal)}
+              {networkTotal === null ? "—" : formatBytes(networkTotal)}
               <br />
               total
             </>
@@ -154,18 +184,29 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
                   name="In"
                   color={COLORS.green}
                   value={
-                    formatBytesPerSecond(system.network.rxBytesPerSecond).value
+                    system.network.rxBytesPerSecond === null
+                      ? "—"
+                      : formatBytesPerSecond(system.network.rxBytesPerSecond)
+                          .value
                   }
                 />
                 <ChartLegend.SmallItem
                   name="Out"
                   color={COLORS.purple}
                   value={
-                    formatBytesPerSecond(system.network.txBytesPerSecond).value
+                    system.network.txBytesPerSecond === null
+                      ? "—"
+                      : formatBytesPerSecond(system.network.txBytesPerSecond)
+                          .value
                   }
                 />
               </div>
-              <span>24h</span>
+              <span>
+                {system.network.rxHistory.length > 0 ||
+                system.network.txHistory.length > 0
+                  ? "24h"
+                  : "No data"}
+              </span>
             </>
           }
           tooltipValueFormat={(value) => {

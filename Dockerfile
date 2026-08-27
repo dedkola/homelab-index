@@ -21,8 +21,6 @@ WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-ENV DASHBOARD_MODE=mock
-
 RUN mkdir -p public
 RUN pnpm build
 

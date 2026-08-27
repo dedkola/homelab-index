@@ -1,7 +1,6 @@
 import "server-only";
 
 import { dashboardCatalog } from "@/config/dashboard";
-import { getMockDashboardSnapshot } from "@/features/dashboard/mock";
 import {
   ProxmoxConfigurationError,
   getProxmoxSnapshot,
@@ -41,14 +40,19 @@ function unavailableSystem(id: SystemId, address: string): CoreSystem {
     address,
     version: "—",
     status: "down",
-    uptimeSeconds: 0,
-    cpu: { percent: 0, cores: 0, threads: 0, history: [] },
-    memory: { percent: 0, usedBytes: 0, totalBytes: 0, history: [] },
+    uptimeSeconds: null,
+    cpu: { percent: null, cores: null, threads: null, history: [] },
+    memory: {
+      percent: null,
+      usedBytes: null,
+      totalBytes: null,
+      history: [],
+    },
     network: {
-      rxBytesPerSecond: 0,
-      txBytesPerSecond: 0,
-      totalRxBytes: 0,
-      totalTxBytes: 0,
+      rxBytesPerSecond: null,
+      txBytesPerSecond: null,
+      totalRxBytes: null,
+      totalTxBytes: null,
       rxHistory: [],
       txHistory: [],
     },
@@ -101,10 +105,6 @@ export async function getDashboardSnapshot(
 ): Promise<DashboardSnapshot> {
   const environment = getRuntimeEnvironment();
 
-  if (environment.DASHBOARD_MODE === "mock") {
-    return getMockDashboardSnapshot(now);
-  }
-
   const [proxmoxResult, unraidResult] = await Promise.allSettled([
     getProxmoxSnapshot(environment),
     getUnraidSnapshot(environment, now.getTime()),
@@ -146,7 +146,6 @@ export async function getDashboardSnapshot(
   );
 
   return {
-    mode: "live",
     generatedAt: now.toISOString(),
     pollIntervalMs: environment.DASHBOARD_POLL_INTERVAL_MS,
     networkLinkLabel: dashboardCatalog.networkLinkLabel,
