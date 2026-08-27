@@ -1,0 +1,16 @@
+.env*
+!.env.example
+.git
+.gitignore
+.next
+.playwright-cli
+coverage
+node_modules
+output
+playwright-report
+prototype
+test-results
+Dockerfile*
+compose*.yaml
+npm-debug.log*
+pnpm-debug.log*

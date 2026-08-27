@@ -1,10 +1,13 @@
-import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { getDashboardSnapshot } from "@/features/dashboard/get-dashboard-snapshot";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export async function GET(): Promise<Response> {
   const snapshot = await getDashboardSnapshot();
 
-  return <DashboardShell initialSnapshot={snapshot} />;
+  return Response.json(snapshot, {
+    headers: {
+      "Cache-Control": "no-store, max-age=0",
+    },
+  });
 }
