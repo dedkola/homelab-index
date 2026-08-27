@@ -3,7 +3,7 @@ import { Text } from "@cloudflare/kumo";
 interface SectionHeadingProps {
   id: string;
   title: string;
-  meta: string;
+  meta?: string;
 }
 
 export function SectionHeading({ id, title, meta }: SectionHeadingProps) {
@@ -14,12 +14,14 @@ export function SectionHeading({ id, title, meta }: SectionHeadingProps) {
           {title}
         </Text>
       </h2>
-      <div className="section-meta" aria-hidden="true">
-        <span className="section-rule" />
-        <Text as="span" variant="mono-secondary">
-          {meta}
-        </Text>
-      </div>
+      {meta ? (
+        <div className="section-meta" aria-hidden="true">
+          <span className="section-rule" />
+          <Text as="span" variant="mono-secondary">
+            {meta}
+          </Text>
+        </div>
+      ) : null}
     </div>
   );
 }

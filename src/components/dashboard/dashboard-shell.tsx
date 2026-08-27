@@ -57,8 +57,6 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
     };
   }, [refresh, snapshot.pollIntervalMs]);
 
-  const pollingSeconds = Math.round(snapshot.pollIntervalMs / 1_000);
-
   return (
     <TooltipProvider>
       <div className="app-shell">
@@ -69,11 +67,7 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             className="dashboard-section"
             aria-labelledby="core-systems-title"
           >
-            <SectionHeading
-              id="core-systems-title"
-              title="Core systems"
-              meta={`${pollingSeconds}s`}
-            />
+            <SectionHeading id="core-systems-title" title="Core systems" />
             <div className="core-grid">
               {snapshot.systems.map((system) => (
                 <CoreSystemCard key={system.id} system={system} />
