@@ -2,6 +2,10 @@ import "server-only";
 
 import { dashboardCatalog } from "@/config/dashboard";
 import {
+  HostCatalogConfigurationError,
+  loadHostCatalog,
+} from "@/features/dashboard/host-catalog";
+import {
   ProxmoxConfigurationError,
   getProxmoxSnapshot,
 } from "@/features/dashboard/providers/proxmox";
@@ -24,7 +28,9 @@ import type {
   UniFiNetwork,
 } from "@/features/dashboard/types";
 import { getRuntimeEnvironment } from "@/lib/env";
-import { requestReachability } from "@/lib/http";
+import { requestTcpReachability } from "@/lib/tcp";
+
+const DEVICE_PROBE_CONCURRENCY = 8;
 
 function hostnameFromUrl(value: string | undefined): string {
   if (!value) {
@@ -154,17 +160,44 @@ async function resolveDevice(
     };
   }
 
-  const reachable = definition.healthUrl
-    ? await requestReachability(definition.healthUrl, timeoutMs)
-    : null;
+  const reachable = await requestTcpReachability(
+    definition.provider.host,
+    definition.provider.port,
+    timeoutMs,
+  );
 
   return {
     ...definition,
-    status: reachable === null ? "unknown" : reachable ? "up" : "down",
+    status: reachable ? "up" : "down",
     cpuPercent: null,
     memoryPercent: null,
     uptimeSeconds: null,
   };
+}
+
+async function mapWithConcurrency<T, Result>(
+  values: readonly T[],
+  concurrency: number,
+  mapper: (value: T) => Promise<Result>,
+): Promise<Result[]> {
+  const results = new Array<Result>(values.length);
+  let nextIndex = 0;
+
+  async function worker(): Promise<void> {
+    while (nextIndex < values.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await mapper(values[index]);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, values.length) }, async () =>
+      worker(),
+    ),
+  );
+
+  return results;
 }
 
 export async function getDashboardSnapshot(
@@ -218,10 +251,32 @@ export async function getDashboardSnapshot(
     issues.push(issueForUniFiError(unifiResult.reason));
   }
 
-  const devices = await Promise.all(
-    dashboardCatalog.devices.map((device) =>
+  let configuredHosts: LanDeviceDefinition[] = [];
+
+  try {
+    configuredHosts = await loadHostCatalog(
+      environment.HOSTS_CONFIG_PATH,
+      dashboardCatalog.devices.map((device) => device.id),
+    );
+  } catch (error) {
+    issues.push({
+      source: "devices",
+      code:
+        error instanceof HostCatalogConfigurationError
+          ? "configuration"
+          : "unavailable",
+    });
+  }
+
+  const deviceDefinitions: LanDeviceDefinition[] = [
+    ...dashboardCatalog.devices,
+    ...configuredHosts,
+  ];
+  const devices = await mapWithConcurrency(
+    deviceDefinitions,
+    DEVICE_PROBE_CONCURRENCY,
+    (device) =>
       resolveDevice(device, virtualMachines, environment.PROVIDER_TIMEOUT_MS),
-    ),
   );
 
   return {

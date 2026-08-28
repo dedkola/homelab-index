@@ -12,12 +12,12 @@ test("renders the approved 4K dashboard and API contract", async ({
   const dashboard = (await dashboardResponse.json()) as {
     systems: unknown[];
     unifi: unknown;
-    devices: unknown[];
+    devices: { url?: string }[];
     links: unknown[];
   };
   expect(dashboard.systems).toHaveLength(2);
   expect(dashboard.unifi).toBeTruthy();
-  expect(dashboard.devices).toHaveLength(8);
+  expect(dashboard.devices.length).toBeGreaterThanOrEqual(8);
   expect(dashboard.links).toHaveLength(10);
 
   await page.goto("/");
@@ -40,10 +40,15 @@ test("renders the approved 4K dashboard and API contract", async ({
   await expect(page.getByRole("heading", { name: "Unraid" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "UniFi" })).toBeVisible();
   await expect(page.locator("[data-system-logo]")).toHaveCount(3);
-  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(11);
+  await expect(page.getByRole("heading", { level: 3 })).toHaveCount(
+    dashboard.devices.length + 3,
+  );
   await expect(
     page.getByRole("link", { name: /Open .* in a new window/ }),
-  ).toHaveCount(18);
+  ).toHaveCount(
+    dashboard.devices.filter((device) => device.url).length +
+      dashboard.links.length,
+  );
 
   const layout = await page.evaluate(() => {
     const topbar = document.querySelector(".topbar");

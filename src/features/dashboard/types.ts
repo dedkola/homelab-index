@@ -105,17 +105,18 @@ export type DeviceProvider =
       id: string;
     }
   | {
-      type: "manual";
+      type: "tcp";
+      host: string;
+      port: number;
     };
 
 export interface LanDeviceDefinition {
   id: string;
   name: string;
   address: string;
-  url: string;
+  url?: string;
   kind: DeviceKind;
   provider: DeviceProvider;
-  healthUrl?: string;
 }
 
 export interface LanDevice extends LanDeviceDefinition {

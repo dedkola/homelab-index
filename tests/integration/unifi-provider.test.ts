@@ -15,6 +15,7 @@ vi.mock("@/lib/http", () => ({
 const environment: RuntimeEnvironment = {
   DASHBOARD_POLL_INTERVAL_MS: 30_000,
   PROVIDER_TIMEOUT_MS: 8_000,
+  HOSTS_CONFIG_PATH: "config/hosts.json",
   PROXMOX_VERIFY_TLS: true,
   UNRAID_VERIFY_TLS: true,
   UNIFI_API_URL: "https://gateway.local/proxy/network/integration",

@@ -68,7 +68,43 @@ Both keys remain server-only. The local and Site Manager sources degrade indepen
 
 ## Devices and links
 
-Edit `src/config/dashboard.ts` to choose LAN workloads, Proxmox VM IDs, IP addresses, URLs, and quick links. Placeholder glyphs are intentional until final service icons are selected.
+Provider-backed Proxmox workloads and quick links remain in
+`src/config/dashboard.ts`. Add TCP-monitored hosts to `config/hosts.json`:
+
+```json
+{
+  "version": 1,
+  "hosts": [
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "host": "192.168.10.40",
+      "port": 8123,
+      "url": "http://192.168.10.40:8123"
+    },
+    {
+      "id": "nas-ssh",
+      "name": "NAS SSH",
+      "host": "192.168.10.11",
+      "port": 22
+    }
+  ]
+}
+```
+
+`id`, `name`, `host`, and `port` are required. `url` is optional and adds the
+card's open button. Use a hostname or IP address without a URL scheme for
+`host`; ports must be between `1` and `65535`.
+
+The server opens a TCP connection to each `host:port`, so `Up` means the
+configured port accepted a connection rather than only answering ICMP ping.
+The file is validated and re-read on every dashboard poll. Invalid catalogs
+degrade the devices source while the provider-backed cards remain available.
+Host cards never fabricate CPU, memory, or uptime values.
+
+Set `HOSTS_CONFIG_PATH` only when the catalog is stored somewhere other than
+`config/hosts.json`. Placeholder glyphs remain intentional until final service
+icons are selected.
 
 ## Docker Compose
 
@@ -97,6 +133,11 @@ In the Unraid WebGUI, open **Docker**, select **Add Container**, and configure:
 - Container port: `3000`
 - Host port: `3000`
 
+Create `/mnt/user/appdata/homelab-index/hosts.json` using the catalog format
+above. Add a **Path** with container path `/app/config/hosts.json`, host path
+`/mnt/user/appdata/homelab-index/hosts.json`, and read-only access. Catalog
+edits are picked up by the next dashboard poll.
+
 For each non-commented key in `.env.example`, select
 **Add another Path, Port, Variable, Label or Device**, choose **Variable**, and
 enter the key and its real value. Unraid stores these values in the container
@@ -121,6 +162,7 @@ docker run -d \
   --name homelab-index \
   --restart unless-stopped \
   --env-file /mnt/user/appdata/homelab-index/.env \
+  --mount type=bind,src=/mnt/user/appdata/homelab-index/hosts.json,dst=/app/config/hosts.json,readonly \
   -p 3000:3000 \
   ghcr.io/dedkola/homelab-index:latest
 ```
@@ -134,6 +176,8 @@ directly on the Proxmox VE host. Inside the VM, create this deployment folder:
 
 ```text
 /opt/homelab-index/
+├── config/
+│   └── hosts.json
 ├── compose.yaml
 └── .env
 ```
@@ -155,6 +199,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - ./config/hosts.json:/app/config/hosts.json:ro
     ports:
       - "3000:3000"
 ```
@@ -178,9 +224,13 @@ UNRAID_GRAPHQL_URL=http://<unraid-ip>/graphql
 UNIFI_API_URL=https://<unifi-ip>/proxy/network/integration
 ```
 
-The container must be able to route to those addresses. Keep port `3000`
-LAN-only or protect it with an authenticated reverse proxy. After changing
-`.env`, recreate the container so the application reads the new values.
+The container must be able to route to provider addresses and every monitored
+`host:port`. Keep port `3000` LAN-only or protect it with an authenticated
+reverse proxy. After changing `.env`, recreate the container so the application
+reads the new values. Mounted `hosts.json` edits need no restart and appear on
+the next poll. If the catalog is maintained in GitHub, update the checked-out
+file on the Docker host; restarting an image without updating its mounted file
+does not fetch repository changes.
 
 ## Quality commands
 
@@ -204,7 +254,8 @@ pnpm exec playwright install chromium
 ```text
 src/app/                         App Router pages and route handlers
 src/components/dashboard/        Kumo dashboard UI
-src/config/dashboard.ts          Selected devices and quick links
+config/hosts.json                 Runtime TCP host catalog
+src/config/dashboard.ts           Provider-backed devices and quick links
 src/features/dashboard/          Domain model, providers, history, orchestration
 src/lib/                         Environment, HTTP, and formatting utilities
 tests/unit/                       Pure unit tests

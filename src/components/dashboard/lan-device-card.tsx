@@ -38,20 +38,22 @@ export function LanDeviceCard({ device }: LanDeviceCardProps) {
             </Text>
           </div>
         </div>
-        <Tooltip
-          content={`Open ${device.name}`}
-          render={
-            <LinkButton
-              href={device.url}
-              external
-              variant="outline"
-              size="xs"
-              shape="square"
-              icon={ArrowSquareOutIcon}
-              aria-label={`Open ${device.name} in a new window`}
-            />
-          }
-        />
+        {device.url ? (
+          <Tooltip
+            content={`Open ${device.name}`}
+            render={
+              <LinkButton
+                href={device.url}
+                external
+                variant="outline"
+                size="xs"
+                shape="square"
+                icon={ArrowSquareOutIcon}
+                aria-label={`Open ${device.name} in a new window`}
+              />
+            }
+          />
+        ) : null}
       </div>
 
       <div className="device-meters">

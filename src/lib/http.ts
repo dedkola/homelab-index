@@ -63,30 +63,3 @@ export async function requestJson<T>(
     await dispatcher.close();
   }
 }
-
-export async function requestReachability(
-  target: string,
-  timeoutMs: number,
-): Promise<boolean> {
-  const url = new URL(target);
-  const dispatcher = new Agent({
-    connect: {
-      rejectUnauthorized: false,
-    },
-  });
-
-  try {
-    const response = await request(url, {
-      method: "HEAD",
-      dispatcher,
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-
-    await response.body.dump();
-    return response.statusCode < 500;
-  } catch {
-    return false;
-  } finally {
-    await dispatcher.close();
-  }
-}

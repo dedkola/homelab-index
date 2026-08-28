@@ -2,6 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getDashboardSnapshot } from "@/features/dashboard/get-dashboard-snapshot";
 import {
+  HostCatalogConfigurationError,
+  loadHostCatalog,
+} from "@/features/dashboard/host-catalog";
+import {
   ProxmoxConfigurationError,
   getProxmoxSnapshot,
 } from "@/features/dashboard/providers/proxmox";
@@ -9,6 +13,14 @@ import { getUnraidSnapshot } from "@/features/dashboard/providers/unraid";
 import { getUniFiSnapshot } from "@/features/dashboard/providers/unifi";
 import type { CoreSystem, UniFiNetwork } from "@/features/dashboard/types";
 import { resetRuntimeEnvironmentForTests } from "@/lib/env";
+import { requestTcpReachability } from "@/lib/tcp";
+
+vi.mock("@/features/dashboard/host-catalog", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/features/dashboard/host-catalog")>();
+
+  return { ...actual, loadHostCatalog: vi.fn() };
+});
 
 vi.mock("@/features/dashboard/providers/proxmox", async (importOriginal) => {
   const actual =
@@ -36,6 +48,8 @@ vi.mock("@/features/dashboard/providers/unifi", async (importOriginal) => {
 
   return { ...actual, getUniFiSnapshot: vi.fn() };
 });
+
+vi.mock("@/lib/tcp", () => ({ requestTcpReachability: vi.fn() }));
 
 function system(id: CoreSystem["id"]): CoreSystem {
   return {
@@ -118,7 +132,10 @@ function unifiNetwork(): UniFiNetwork {
 describe("dashboard snapshot integration", () => {
   beforeEach(() => {
     process.env.DASHBOARD_POLL_INTERVAL_MS = "30000";
+    process.env.HOSTS_CONFIG_PATH = "config/hosts.json";
     resetRuntimeEnvironmentForTests();
+    vi.mocked(loadHostCatalog).mockReset().mockResolvedValue([]);
+    vi.mocked(requestTcpReachability).mockReset().mockResolvedValue(true);
     vi.mocked(getProxmoxSnapshot)
       .mockReset()
       .mockResolvedValue({
@@ -193,6 +210,64 @@ describe("dashboard snapshot integration", () => {
     });
     expect(snapshot.issues).toContainEqual({
       source: "proxmox",
+      code: "configuration",
+    });
+  });
+
+  it("appends configured hosts and reports their TCP port status", async () => {
+    vi.mocked(loadHostCatalog).mockResolvedValue([
+      {
+        id: "open-service",
+        name: "Open service",
+        address: "open.local:443",
+        url: "https://open.local",
+        kind: "host",
+        provider: { type: "tcp", host: "open.local", port: 443 },
+      },
+      {
+        id: "closed-service",
+        name: "Closed service",
+        address: "closed.local:22",
+        kind: "host",
+        provider: { type: "tcp", host: "closed.local", port: 22 },
+      },
+    ]);
+    vi.mocked(requestTcpReachability).mockImplementation(async (host) =>
+      host.startsWith("open"),
+    );
+
+    const snapshot = await getDashboardSnapshot();
+
+    expect(snapshot.devices).toHaveLength(10);
+    expect(snapshot.devices.slice(-2)).toMatchObject([
+      {
+        id: "open-service",
+        status: "up",
+        cpuPercent: null,
+        memoryPercent: null,
+        uptimeSeconds: null,
+      },
+      {
+        id: "closed-service",
+        status: "down",
+        cpuPercent: null,
+        memoryPercent: null,
+        uptimeSeconds: null,
+      },
+    ]);
+    expect(requestTcpReachability).toHaveBeenCalledTimes(2);
+  });
+
+  it("degrades devices without dropping provider-backed workloads", async () => {
+    vi.mocked(loadHostCatalog).mockRejectedValue(
+      new HostCatalogConfigurationError("Invalid catalog"),
+    );
+
+    const snapshot = await getDashboardSnapshot();
+
+    expect(snapshot.devices).toHaveLength(8);
+    expect(snapshot.issues).toContainEqual({
+      source: "devices",
       code: "configuration",
     });
   });

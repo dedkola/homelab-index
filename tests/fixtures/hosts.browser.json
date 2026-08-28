@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "hosts": [
+    {
+      "id": "dashboard-tcp",
+      "name": "Dashboard TCP",
+      "host": "127.0.0.1",
+      "port": 3100,
+      "url": "http://127.0.0.1:3100"
+    },
+    {
+      "id": "closed-tcp",
+      "name": "Closed TCP",
+      "host": "127.0.0.1",
+      "port": 65534
+    }
+  ]
+}
