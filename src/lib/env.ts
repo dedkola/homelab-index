@@ -29,6 +29,14 @@ const runtimeEnvironmentSchema = z.object({
   UNRAID_API_KEY: z.string().min(1).optional(),
   UNRAID_NETWORK_INTERFACE: z.string().min(1).optional(),
   UNRAID_VERIFY_TLS: booleanString,
+  UNIFI_API_URL: z.string().url().optional(),
+  UNIFI_API_KEY: z.string().min(1).optional(),
+  UNIFI_SITE_ID: z.string().min(1).optional(),
+  UNIFI_GATEWAY_ID: z.string().min(1).optional(),
+  UNIFI_VERIFY_TLS: booleanString,
+  UNIFI_SITE_MANAGER_API_URL: z.string().url().default("https://api.ui.com"),
+  UNIFI_SITE_MANAGER_API_KEY: z.string().min(1).optional(),
+  UNIFI_SITE_MANAGER_SITE_ID: z.string().min(1).optional(),
 });
 
 export type RuntimeEnvironment = z.infer<typeof runtimeEnvironmentSchema>;

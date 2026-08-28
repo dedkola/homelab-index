@@ -6,7 +6,8 @@ import {
   getProxmoxSnapshot,
 } from "@/features/dashboard/providers/proxmox";
 import { getUnraidSnapshot } from "@/features/dashboard/providers/unraid";
-import type { CoreSystem } from "@/features/dashboard/types";
+import { getUniFiSnapshot } from "@/features/dashboard/providers/unifi";
+import type { CoreSystem, UniFiNetwork } from "@/features/dashboard/types";
 import { resetRuntimeEnvironmentForTests } from "@/lib/env";
 
 vi.mock("@/features/dashboard/providers/proxmox", async (importOriginal) => {
@@ -25,6 +26,15 @@ vi.mock("@/features/dashboard/providers/unraid", async (importOriginal) => {
     >();
 
   return { ...actual, getUnraidSnapshot: vi.fn() };
+});
+
+vi.mock("@/features/dashboard/providers/unifi", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@/features/dashboard/providers/unifi")
+    >();
+
+  return { ...actual, getUniFiSnapshot: vi.fn() };
 });
 
 function system(id: CoreSystem["id"]): CoreSystem {
@@ -53,6 +63,58 @@ function system(id: CoreSystem["id"]): CoreSystem {
   };
 }
 
+function unifiNetwork(): UniFiNetwork {
+  return {
+    name: "UniFi",
+    address: "gateway.local",
+    model: "UCG Ultra",
+    firmwareVersion: "5.1.31",
+    applicationVersion: "10.5.67",
+    status: "up",
+    uptimeSeconds: 3_600,
+    cpuPercent: 12,
+    memoryPercent: 34,
+    loadAverage1Min: 0.8,
+    internetIssueCount: 0,
+    traffic: {
+      rxBytesPerSecond: 100,
+      txBytesPerSecond: 50,
+      rxHistory: [[1_000, 100]],
+      txHistory: [[1_000, 50]],
+    },
+    internet: {
+      ispName: "ISP",
+      ispAsn: "123",
+      averageLatencyMs: 5,
+      maximumLatencyMs: 10,
+      packetLossPercent: 0,
+      uptimePercent: 100,
+      downtimeSeconds: 0,
+      downloadKbps: 1_000_000,
+      uploadKbps: 1_000_000,
+      latencyHistory: [[1_000, 5]],
+      maximumLatencyHistory: [[1_000, 10]],
+      packetLossHistory: [[1_000, 0]],
+    },
+    clients: {
+      total: 19,
+      wired: 10,
+      wireless: 9,
+      guest: 0,
+      vpn: 0,
+      history: [[1_000, 19]],
+    },
+    devices: {
+      online: 5,
+      total: 5,
+      pendingUpdates: 0,
+      portsUp: 4,
+      portsTotal: 5,
+      wanCount: 2,
+    },
+  };
+}
+
 describe("dashboard snapshot integration", () => {
   beforeEach(() => {
     process.env.DASHBOARD_POLL_INTERVAL_MS = "30000";
@@ -77,6 +139,9 @@ describe("dashboard snapshot integration", () => {
     vi.mocked(getUnraidSnapshot)
       .mockReset()
       .mockResolvedValue({ system: system("unraid") });
+    vi.mocked(getUniFiSnapshot)
+      .mockReset()
+      .mockResolvedValue({ network: unifiNetwork(), issues: [] });
   });
 
   it("builds the dashboard contract from provider results", async () => {
@@ -91,6 +156,11 @@ describe("dashboard snapshot integration", () => {
     ]);
     expect(snapshot.devices).toHaveLength(8);
     expect(snapshot.links).toHaveLength(10);
+    expect(snapshot.unifi).toMatchObject({
+      model: "UCG Ultra",
+      clients: { total: 19 },
+      devices: { online: 5, total: 5 },
+    });
     expect(snapshot.issues).toEqual([]);
     expect(snapshot.devices[0]).toMatchObject({
       status: "up",

@@ -219,6 +219,7 @@ button {
 }
 
 .core-system-card,
+.network-system-card,
 .device-card,
 .quick-link-card,
 .state-card,
@@ -236,7 +237,25 @@ button {
   padding: 0 !important;
 }
 
+.network-system-card {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
 .core-system-card::before {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--system-accent);
+  content: "";
+}
+
+.network-system-card::before {
   position: absolute;
   z-index: 2;
   top: 0;
@@ -255,6 +274,15 @@ button {
 .system-unraid {
   --system-accent: var(--blue);
   --system-soft: var(--blue-soft);
+}
+
+.system-unifi {
+  --system-accent: var(--green);
+  --system-soft: var(--green-soft);
+}
+
+.network-system-subline {
+  max-width: min(75vw, 1400px);
 }
 
 .system-header {
@@ -423,6 +451,13 @@ button {
 
 .network-legend > div {
   font-size: 9px;
+}
+
+.network-isp {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .core-link {

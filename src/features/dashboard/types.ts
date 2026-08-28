@@ -39,6 +39,64 @@ export interface CoreSystem {
   network: NetworkMetric;
 }
 
+export interface UniFiTrafficMetric {
+  rxBytesPerSecond: number | null;
+  txBytesPerSecond: number | null;
+  rxHistory: TimeSeriesPoint[];
+  txHistory: TimeSeriesPoint[];
+}
+
+export interface UniFiInternetMetric {
+  ispName: string | null;
+  ispAsn: string | null;
+  averageLatencyMs: number | null;
+  maximumLatencyMs: number | null;
+  packetLossPercent: number | null;
+  uptimePercent: number | null;
+  downtimeSeconds: number | null;
+  downloadKbps: number | null;
+  uploadKbps: number | null;
+  latencyHistory: TimeSeriesPoint[];
+  maximumLatencyHistory: TimeSeriesPoint[];
+  packetLossHistory: TimeSeriesPoint[];
+}
+
+export interface UniFiClientMetric {
+  total: number | null;
+  wired: number | null;
+  wireless: number | null;
+  guest: number | null;
+  vpn: number | null;
+  history: TimeSeriesPoint[];
+}
+
+export interface UniFiDeviceMetric {
+  online: number | null;
+  total: number | null;
+  pendingUpdates: number | null;
+  portsUp: number | null;
+  portsTotal: number | null;
+  wanCount: number | null;
+}
+
+export interface UniFiNetwork {
+  name: string;
+  address: string;
+  model: string;
+  firmwareVersion: string;
+  applicationVersion: string;
+  status: Availability;
+  uptimeSeconds: number | null;
+  cpuPercent: number | null;
+  memoryPercent: number | null;
+  loadAverage1Min: number | null;
+  internetIssueCount: number;
+  traffic: UniFiTrafficMetric;
+  internet: UniFiInternetMetric;
+  clients: UniFiClientMetric;
+  devices: UniFiDeviceMetric;
+}
+
 export type DeviceKind = "vm" | "container" | "host" | "device";
 
 export type DeviceProvider =
@@ -75,7 +133,7 @@ export interface QuickLink {
 }
 
 export interface DashboardIssue {
-  source: SystemId | "devices";
+  source: SystemId | "unifi" | "devices";
   code: string;
 }
 
@@ -84,6 +142,7 @@ export interface DashboardSnapshot {
   pollIntervalMs: number;
   networkLinkLabel: string;
   systems: CoreSystem[];
+  unifi: UniFiNetwork;
   devices: LanDevice[];
   links: QuickLink[];
   issues: DashboardIssue[];

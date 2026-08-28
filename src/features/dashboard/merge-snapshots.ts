@@ -34,6 +34,42 @@ export function mergeDashboardSnapshots(
 ): DashboardSnapshot {
   return {
     ...incoming,
+    unifi: {
+      ...incoming.unifi,
+      traffic: {
+        ...incoming.unifi.traffic,
+        rxHistory: mergeSeries(
+          previous.unifi.traffic.rxHistory,
+          incoming.unifi.traffic.rxHistory,
+        ),
+        txHistory: mergeSeries(
+          previous.unifi.traffic.txHistory,
+          incoming.unifi.traffic.txHistory,
+        ),
+      },
+      internet: {
+        ...incoming.unifi.internet,
+        latencyHistory: mergeSeries(
+          previous.unifi.internet.latencyHistory,
+          incoming.unifi.internet.latencyHistory,
+        ),
+        maximumLatencyHistory: mergeSeries(
+          previous.unifi.internet.maximumLatencyHistory,
+          incoming.unifi.internet.maximumLatencyHistory,
+        ),
+        packetLossHistory: mergeSeries(
+          previous.unifi.internet.packetLossHistory,
+          incoming.unifi.internet.packetLossHistory,
+        ),
+      },
+      clients: {
+        ...incoming.unifi.clients,
+        history: mergeSeries(
+          previous.unifi.clients.history,
+          incoming.unifi.clients.history,
+        ),
+      },
+    },
     systems: incoming.systems.map((system) => {
       const previousSystem = previous.systems.find(
         (candidate) => candidate.id === system.id,

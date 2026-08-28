@@ -9,6 +9,10 @@ import {
   UnraidConfigurationError,
   getUnraidSnapshot,
 } from "@/features/dashboard/providers/unraid";
+import {
+  UniFiConfigurationError,
+  getUniFiSnapshot,
+} from "@/features/dashboard/providers/unifi";
 import type {
   CoreSystem,
   DashboardIssue,
@@ -17,6 +21,7 @@ import type {
   LanDeviceDefinition,
   ProxmoxVmSnapshot,
   SystemId,
+  UniFiNetwork,
 } from "@/features/dashboard/types";
 import { getRuntimeEnvironment } from "@/lib/env";
 import { requestReachability } from "@/lib/http";
@@ -70,6 +75,68 @@ function issueForError(source: SystemId, error: unknown): DashboardIssue {
   };
 }
 
+function unavailableUniFi(address: string): UniFiNetwork {
+  return {
+    name: "UniFi",
+    address,
+    model: "Gateway",
+    firmwareVersion: "—",
+    applicationVersion: "—",
+    status: "down",
+    uptimeSeconds: null,
+    cpuPercent: null,
+    memoryPercent: null,
+    loadAverage1Min: null,
+    internetIssueCount: 0,
+    traffic: {
+      rxBytesPerSecond: null,
+      txBytesPerSecond: null,
+      rxHistory: [],
+      txHistory: [],
+    },
+    internet: {
+      ispName: null,
+      ispAsn: null,
+      averageLatencyMs: null,
+      maximumLatencyMs: null,
+      packetLossPercent: null,
+      uptimePercent: null,
+      downtimeSeconds: null,
+      downloadKbps: null,
+      uploadKbps: null,
+      latencyHistory: [],
+      maximumLatencyHistory: [],
+      packetLossHistory: [],
+    },
+    clients: {
+      total: null,
+      wired: null,
+      wireless: null,
+      guest: null,
+      vpn: null,
+      history: [],
+    },
+    devices: {
+      online: null,
+      total: null,
+      pendingUpdates: null,
+      portsUp: null,
+      portsTotal: null,
+      wanCount: null,
+    },
+  };
+}
+
+function issueForUniFiError(error: unknown): DashboardIssue {
+  return {
+    source: "unifi",
+    code:
+      error instanceof UniFiConfigurationError
+        ? "configuration"
+        : "unavailable",
+  };
+}
+
 async function resolveDevice(
   definition: LanDeviceDefinition,
   virtualMachines: Map<string, ProxmoxVmSnapshot>,
@@ -105,9 +172,10 @@ export async function getDashboardSnapshot(
 ): Promise<DashboardSnapshot> {
   const environment = getRuntimeEnvironment();
 
-  const [proxmoxResult, unraidResult] = await Promise.allSettled([
+  const [proxmoxResult, unraidResult, unifiResult] = await Promise.allSettled([
     getProxmoxSnapshot(environment),
     getUnraidSnapshot(environment, now.getTime()),
+    getUniFiSnapshot(environment, now.getTime()),
   ]);
   const issues: DashboardIssue[] = [];
   const virtualMachines =
@@ -139,6 +207,17 @@ export async function getDashboardSnapshot(
     issues.push(issueForError("unraid", unraidResult.reason));
   }
 
+  const unifi =
+    unifiResult.status === "fulfilled"
+      ? unifiResult.value.network
+      : unavailableUniFi(hostnameFromUrl(environment.UNIFI_API_URL));
+
+  if (unifiResult.status === "fulfilled") {
+    issues.push(...unifiResult.value.issues);
+  } else {
+    issues.push(issueForUniFiError(unifiResult.reason));
+  }
+
   const devices = await Promise.all(
     dashboardCatalog.devices.map((device) =>
       resolveDevice(device, virtualMachines, environment.PROVIDER_TIMEOUT_MS),
@@ -150,6 +229,7 @@ export async function getDashboardSnapshot(
     pollIntervalMs: environment.DASHBOARD_POLL_INTERVAL_MS,
     networkLinkLabel: dashboardCatalog.networkLinkLabel,
     systems: [proxmoxSystem, unraidSystem],
+    unifi,
     devices,
     links: [...dashboardCatalog.links],
     issues,

@@ -17,6 +17,8 @@ const environment: RuntimeEnvironment = {
   PROXMOX_TOKEN_SECRET: "secret",
   PROXMOX_VERIFY_TLS: false,
   UNRAID_VERIFY_TLS: true,
+  UNIFI_VERIFY_TLS: true,
+  UNIFI_SITE_MANAGER_API_URL: "https://api.ui.com",
 };
 
 describe("Proxmox provider", () => {

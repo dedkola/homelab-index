@@ -8,6 +8,7 @@ import { LanDeviceCard } from "@/components/dashboard/lan-device-card";
 import { QuickLinkCard } from "@/components/dashboard/quick-link-card";
 import { SectionHeading } from "@/components/dashboard/section-heading";
 import { Topbar } from "@/components/dashboard/topbar";
+import { UniFiNetworkCard } from "@/components/dashboard/unifi-network-card";
 import { mergeDashboardSnapshots } from "@/features/dashboard/merge-snapshots";
 import type { DashboardSnapshot } from "@/features/dashboard/types";
 import { formatClock } from "@/lib/format";
@@ -63,6 +64,18 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
         <Topbar snapshot={snapshot} refreshFailed={refreshFailed} />
 
         <main className="dashboard-main">
+          <section
+            className="dashboard-section"
+            aria-labelledby="network-title"
+          >
+            <SectionHeading
+              id="network-title"
+              title="Network"
+              meta={`${snapshot.unifi.devices.wanCount ?? "—"} WAN · ${snapshot.unifi.clients.total ?? "—"} clients`}
+            />
+            <UniFiNetworkCard network={snapshot.unifi} />
+          </section>
+
           <section
             className="dashboard-section"
             aria-labelledby="core-systems-title"

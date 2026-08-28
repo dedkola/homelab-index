@@ -17,6 +17,8 @@ const environment: RuntimeEnvironment = {
   UNRAID_API_KEY: "secret",
   UNRAID_NETWORK_INTERFACE: "br0",
   UNRAID_VERIFY_TLS: true,
+  UNIFI_VERIFY_TLS: true,
+  UNIFI_SITE_MANAGER_API_URL: "https://api.ui.com",
 };
 
 describe("Unraid provider", () => {

@@ -1,12 +1,12 @@
 # Homelab Index
 
-Next.js 16 App Router dashboard for Proxmox, Unraid, selected LAN workloads, and homelab links.
+Next.js 16 App Router dashboard for UniFi, Proxmox, Unraid, selected LAN workloads, and homelab links.
 
 ## Stack
 
 - Next.js 16 App Router and React 19
 - Cloudflare Kumo and ECharts
-- Typed Proxmox REST and Unraid GraphQL adapters
+- Typed UniFi, Proxmox REST, and Unraid GraphQL adapters
 - Vitest and Playwright
 - Docker standalone output
 
@@ -48,6 +48,23 @@ UNRAID_VERIFY_TLS=true
 ```
 
 Unraid CPU, memory, and network history accumulates while the application is running. Proxmox history comes directly from RRD.
+
+### UniFi
+
+Create a local API key in UniFi Network under Control Plane → Integrations. The local API supplies current gateway utilization, uplink traffic, clients, devices, ports, and WAN definitions.
+
+Create a separate Site Manager API key at [unifi.ui.com](https://unifi.ui.com) for 24-hour ISP latency, packet loss, uptime, and provisioned download/upload capacity.
+
+```dotenv
+UNIFI_API_URL=https://192.168.0.1/proxy/network/integration
+UNIFI_API_KEY=replace-me
+UNIFI_VERIFY_TLS=false
+
+UNIFI_SITE_MANAGER_API_URL=https://api.ui.com
+UNIFI_SITE_MANAGER_API_KEY=replace-me
+```
+
+Both keys remain server-only. The local and Site Manager sources degrade independently, so the Network card continues to show whichever telemetry remains available. Set `UNIFI_SITE_ID`, `UNIFI_GATEWAY_ID`, or `UNIFI_SITE_MANAGER_SITE_ID` only when automatic selection is ambiguous.
 
 ## Devices and links
 

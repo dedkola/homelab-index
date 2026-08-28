@@ -16,6 +16,7 @@ export function Topbar({ snapshot, refreshFailed }: TopbarProps) {
   const degraded =
     refreshFailed ||
     snapshot.issues.length > 0 ||
+    snapshot.unifi.status !== "up" ||
     snapshot.systems.some((system) => system.status !== "up");
 
   useEffect(() => {
