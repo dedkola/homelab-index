@@ -125,7 +125,7 @@ describe("UniFi provider", () => {
           loadAverage1Min: 1.2,
           cpuUtilizationPct: 26.1,
           memoryUtilizationPct: 48.8,
-          uplink: { rxRateBps: 125_000, txRateBps: 25_000 },
+          uplink: { rxRateBps: 800_000_000, txRateBps: 80_000_000 },
         };
       }
 
@@ -213,8 +213,8 @@ describe("UniFi provider", () => {
       memoryPercent: 48.8,
       internetIssueCount: 1,
       traffic: {
-        rxBytesPerSecond: 125_000,
-        txBytesPerSecond: 25_000,
+        rxBytesPerSecond: 100_000_000,
+        txBytesPerSecond: 10_000_000,
       },
       internet: {
         averageLatencyMs: 4,
@@ -239,5 +239,7 @@ describe("UniFi provider", () => {
       [now, 4],
     ]);
     expect(snapshot.network.clients.history).toEqual([[now, 3]]);
+    expect(snapshot.network.traffic.rxHistory).toEqual([[now, 100_000_000]]);
+    expect(snapshot.network.traffic.txHistory).toEqual([[now, 10_000_000]]);
   });
 });

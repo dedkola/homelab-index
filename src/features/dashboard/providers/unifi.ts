@@ -486,6 +486,14 @@ function siteManagerStatus(
     : "down";
 }
 
+function bitsPerSecondToBytesPerSecond(
+  bitsPerSecond: number | null | undefined,
+): number | null {
+  return bitsPerSecond === null || bitsPerSecond === undefined
+    ? null
+    : bitsPerSecond / 8;
+}
+
 export async function getUniFiSnapshot(
   environment: RuntimeEnvironment,
   now = Date.now(),
@@ -543,8 +551,12 @@ export async function getUniFiSnapshot(
     : siteCounts
       ? siteCounts.wiredClient + siteCounts.wifiClient + siteCounts.guestClient
       : null;
-  const rxBytesPerSecond = local?.statistics.uplink?.rxRateBps ?? null;
-  const txBytesPerSecond = local?.statistics.uplink?.txRateBps ?? null;
+  const rxBytesPerSecond = bitsPerSecondToBytesPerSecond(
+    local?.statistics.uplink?.rxRateBps,
+  );
+  const txBytesPerSecond = bitsPerSecondToBytesPerSecond(
+    local?.statistics.uplink?.txRateBps,
+  );
   const ports = local?.details.interfaces.ports ?? [];
   const status =
     localStatus(local) ?? siteManagerStatus(siteManager) ?? "unknown";
