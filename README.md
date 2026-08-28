@@ -79,6 +79,109 @@ docker compose up -d --build
 
 The container runs as a non-root user and exposes a health check at `/api/health`.
 
+## Published container image
+
+Pushes to `main` publish a multi-platform image for `linux/amd64` and
+`linux/arm64` to GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/dedkola/homelab-index:latest
+```
+
+## Deploy on Unraid
+
+In the Unraid WebGUI, open **Docker**, select **Add Container**, and configure:
+
+- Repository: `ghcr.io/dedkola/homelab-index:latest`
+- Network type: `bridge`
+- Container port: `3000`
+- Host port: `3000`
+
+For each non-commented key in `.env.example`, select
+**Add another Path, Port, Variable, Label or Device**, choose **Variable**, and
+enter the key and its real value. Unraid stores these values in the container
+template, so a separate `.env` file is not required with this method.
+
+To use an actual environment file instead, create it from `.env.example` in a
+protected app-data directory using the Unraid terminal:
+
+```bash
+mkdir -p /mnt/user/appdata/homelab-index
+chmod 700 /mnt/user/appdata/homelab-index
+nano /mnt/user/appdata/homelab-index/.env
+chmod 600 /mnt/user/appdata/homelab-index/.env
+```
+
+Then start the published image with that file:
+
+```bash
+docker pull ghcr.io/dedkola/homelab-index:latest
+
+docker run -d \
+  --name homelab-index \
+  --restart unless-stopped \
+  --env-file /mnt/user/appdata/homelab-index/.env \
+  -p 3000:3000 \
+  ghcr.io/dedkola/homelab-index:latest
+```
+
+Open `http://<unraid-ip>:3000`.
+
+## Deploy on Proxmox
+
+Run the image inside a small Debian or Ubuntu Docker VM. Do not install Docker
+directly on the Proxmox VE host. Inside the VM, create this deployment folder:
+
+```text
+/opt/homelab-index/
+├── compose.yaml
+└── .env
+```
+
+Create `.env` from `.env.example`, insert the real provider values, and protect
+the file:
+
+```bash
+chmod 600 /opt/homelab-index/.env
+```
+
+Use this `/opt/homelab-index/compose.yaml`:
+
+```yaml
+services:
+  homelab-index:
+    image: ghcr.io/dedkola/homelab-index:latest
+    container_name: homelab-index
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+```
+
+Start it from the deployment directory:
+
+```bash
+cd /opt/homelab-index
+docker compose pull
+docker compose up -d
+```
+
+Open `http://<docker-vm-ip>:3000`.
+
+Inside a container, `localhost` points to the dashboard container itself. Use
+the providers' LAN addresses in `.env`, for example:
+
+```dotenv
+PROXMOX_API_URL=https://<proxmox-ip>:8006
+UNRAID_GRAPHQL_URL=http://<unraid-ip>/graphql
+UNIFI_API_URL=https://<unifi-ip>/proxy/network/integration
+```
+
+The container must be able to route to those addresses. Keep port `3000`
+LAN-only or protect it with an authenticated reverse proxy. After changing
+`.env`, recreate the container so the application reads the new values.
+
 ## Quality commands
 
 ```bash
@@ -91,8 +194,6 @@ pnpm test:smoke
 pnpm build
 pnpm check
 ```
-
-Install the Playwright browser once before smoke tests:
 
 ```bash
 pnpm exec playwright install chromium
