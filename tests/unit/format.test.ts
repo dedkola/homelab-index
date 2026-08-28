@@ -5,6 +5,7 @@ import {
   formatBytes,
   formatBytesPerSecond,
   formatDuration,
+  formatMegabitsPerSecond,
 } from "@/lib/format";
 
 describe("dashboard formatters", () => {
@@ -25,6 +26,8 @@ describe("dashboard formatters", () => {
       value: "64",
       unit: "Mb/s",
     });
+    expect(formatMegabitsPerSecond(60_000_000)).toBe("480 Mb/s");
+    expect(formatMegabitsPerSecond(125_000)).toBe("1 Mb/s");
   });
 
   it("formats compact uptimes", () => {

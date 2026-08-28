@@ -9,6 +9,7 @@ import {
   formatBytes,
   formatBytesPerSecond,
   formatDuration,
+  formatMegabitsPerSecond,
 } from "@/lib/format";
 
 const COLORS = {
@@ -210,6 +211,7 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
               </span>
             </>
           }
+          yAxisTickFormat={formatMegabitsPerSecond}
           tooltipValueFormat={(value) => {
             const formatted = formatBytesPerSecond(value);
             return `${formatted.value} ${formatted.unit}`;

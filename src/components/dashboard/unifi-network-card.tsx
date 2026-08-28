@@ -5,7 +5,11 @@ import { Badge, ChartLegend, LayerCard, Text } from "@cloudflare/kumo";
 import { MetricChart } from "@/components/dashboard/metric-chart";
 import { SystemLogo } from "@/components/dashboard/system-logo";
 import type { UniFiNetwork } from "@/features/dashboard/types";
-import { formatBytesPerSecond, formatDuration } from "@/lib/format";
+import {
+  formatBytesPerSecond,
+  formatDuration,
+  formatMegabitsPerSecond,
+} from "@/lib/format";
 
 const COLORS = {
   orange: "#f48120",
@@ -174,6 +178,7 @@ export function UniFiNetworkCard({ network }: UniFiNetworkCardProps) {
               </span>
             </>
           }
+          yAxisTickFormat={formatMegabitsPerSecond}
           tooltipValueFormat={(value) => rate(value)}
         />
 

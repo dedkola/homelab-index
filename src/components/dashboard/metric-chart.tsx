@@ -44,6 +44,7 @@ interface MetricChartProps {
   detail: React.ReactNode;
   series: MetricSeries[];
   footer: React.ReactNode;
+  yAxisTickFormat?: (value: number) => string;
   tooltipValueFormat: (value: number) => string;
 }
 
@@ -71,6 +72,7 @@ export function MetricChart({
   detail,
   series,
   footer,
+  yAxisTickFormat = (point) => Math.round(point).toString(),
   tooltipValueFormat,
 }: MetricChartProps) {
   const [height, setHeight] = useState(150);
@@ -116,7 +118,7 @@ export function MetricChart({
             xAxisTickCount={2}
             xAxisTickFormat={tickTime}
             yAxisTickCount={3}
-            yAxisTickFormat={(point) => Math.round(point).toString()}
+            yAxisTickFormat={yAxisTickFormat}
             tooltipValueFormat={tooltipValueFormat}
             tooltipFollowCursor="x"
             ariaDescription={`${label} history`}

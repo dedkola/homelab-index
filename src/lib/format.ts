@@ -43,6 +43,14 @@ export function formatBytesPerSecond(bytesPerSecond: number): {
   return { value: bitsPerSecond.toFixed(0), unit: "b/s" };
 }
 
+export function formatMegabitsPerSecond(bytesPerSecond: number): string {
+  const megabitsPerSecond = (Math.max(0, bytesPerSecond) * 8) / 1_000_000;
+
+  return `${new Intl.NumberFormat("en-GB", {
+    maximumFractionDigits: 2,
+  }).format(megabitsPerSecond)} Mb/s`;
+}
+
 export function formatDuration(totalSeconds: number | null): string {
   if (
     totalSeconds === null ||
