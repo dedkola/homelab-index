@@ -3,6 +3,7 @@
 import { Badge, ChartLegend, LayerCard, Text } from "@cloudflare/kumo";
 
 import { MetricChart } from "@/components/dashboard/metric-chart";
+import { SystemLogo } from "@/components/dashboard/system-logo";
 import type { UniFiNetwork } from "@/features/dashboard/types";
 import { formatBytesPerSecond, formatDuration } from "@/lib/format";
 
@@ -79,7 +80,7 @@ export function UniFiNetworkCard({ network }: UniFiNetworkCardProps) {
       <LayerCard.Secondary className="system-header network-system-header">
         <div className="system-identity">
           <div className="system-glyph" aria-hidden="true">
-            UI
+            <SystemLogo id="unifi" />
           </div>
           <div className="system-copy">
             <div className="system-title-row">

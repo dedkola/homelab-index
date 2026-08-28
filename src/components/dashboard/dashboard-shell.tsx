@@ -6,7 +6,6 @@ import { useCallback, useEffect, useState } from "react";
 import { CoreSystemCard } from "@/components/dashboard/core-system-card";
 import { LanDeviceCard } from "@/components/dashboard/lan-device-card";
 import { QuickLinkCard } from "@/components/dashboard/quick-link-card";
-import { SectionHeading } from "@/components/dashboard/section-heading";
 import { Topbar } from "@/components/dashboard/topbar";
 import { UniFiNetworkCard } from "@/components/dashboard/unifi-network-card";
 import { mergeDashboardSnapshots } from "@/features/dashboard/merge-snapshots";
@@ -68,11 +67,9 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             className="dashboard-section"
             aria-labelledby="network-title"
           >
-            <SectionHeading
-              id="network-title"
-              title="Network"
-              meta={`${snapshot.unifi.devices.wanCount ?? "—"} WAN · ${snapshot.unifi.clients.total ?? "—"} clients`}
-            />
+            <h2 id="network-title" className="visually-hidden">
+              Network
+            </h2>
             <UniFiNetworkCard network={snapshot.unifi} />
           </section>
 
@@ -80,7 +77,9 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             className="dashboard-section"
             aria-labelledby="core-systems-title"
           >
-            <SectionHeading id="core-systems-title" title="Core systems" />
+            <h2 id="core-systems-title" className="visually-hidden">
+              Core systems
+            </h2>
             <div className="core-grid">
               {snapshot.systems.map((system) => (
                 <CoreSystemCard key={system.id} system={system} />
@@ -95,11 +94,9 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             className="dashboard-section"
             aria-labelledby="lan-workloads-title"
           >
-            <SectionHeading
-              id="lan-workloads-title"
-              title="LAN workloads"
-              meta={`${snapshot.devices.length} nodes`}
-            />
+            <h2 id="lan-workloads-title" className="visually-hidden">
+              LAN workloads
+            </h2>
             <div className="devices-grid">
               {snapshot.devices.map((device) => (
                 <LanDeviceCard key={device.id} device={device} />
@@ -111,11 +108,9 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             className="dashboard-section"
             aria-labelledby="quick-links-title"
           >
-            <SectionHeading
-              id="quick-links-title"
-              title="Quick links"
-              meta={`${snapshot.links.length} services`}
-            />
+            <h2 id="quick-links-title" className="visually-hidden">
+              Quick links
+            </h2>
             <div className="links-grid">
               {snapshot.links.map((link) => (
                 <QuickLinkCard key={link.id} link={link} />

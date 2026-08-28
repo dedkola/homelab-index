@@ -22,30 +22,52 @@ test("renders the approved 4K dashboard and API contract", async ({
 
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { name: "Network" })).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Core systems" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "LAN workloads" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Quick links" }),
-  ).toBeVisible();
+  for (const sectionTitle of [
+    "Network",
+    "Core systems",
+    "LAN workloads",
+    "Quick links",
+  ]) {
+    await expect(
+      page.getByRole("heading", { name: sectionTitle }),
+    ).toBeAttached();
+    await expect(page.getByRole("heading", { name: sectionTitle })).toHaveCSS(
+      "clip-path",
+      "inset(50%)",
+    );
+  }
   await expect(page.getByRole("heading", { name: "Proxmox" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Unraid" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "UniFi" })).toBeVisible();
+  await expect(page.locator("[data-system-logo]")).toHaveCount(3);
   await expect(page.getByRole("heading", { level: 3 })).toHaveCount(11);
   await expect(
     page.getByRole("link", { name: /Open .* in a new window/ }),
   ).toHaveCount(18);
 
-  const layout = await page.evaluate(() => ({
-    viewportWidth: document.documentElement.clientWidth,
-    documentWidth: document.documentElement.scrollWidth,
-    documentHeight: document.documentElement.scrollHeight,
-  }));
+  const layout = await page.evaluate(() => {
+    const topbar = document.querySelector(".topbar");
+    const sections = [...document.querySelectorAll(".dashboard-section")];
+
+    return {
+      viewportWidth: document.documentElement.clientWidth,
+      documentWidth: document.documentElement.scrollWidth,
+      documentHeight: document.documentElement.scrollHeight,
+      headerGap:
+        sections[0].getBoundingClientRect().top -
+        topbar!.getBoundingClientRect().bottom,
+      sectionGaps: sections
+        .slice(1)
+        .map(
+          (section, index) =>
+            section.getBoundingClientRect().top -
+            sections[index].getBoundingClientRect().bottom,
+        ),
+    };
+  });
 
   expect(layout.documentWidth).toBe(layout.viewportWidth);
   expect(layout.documentHeight).toBeLessThanOrEqual(2160);
+  expect(layout.headerGap).toBe(5);
+  expect(layout.sectionGaps).toEqual([5, 5, 5]);
 });

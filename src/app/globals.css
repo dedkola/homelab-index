@@ -111,8 +111,6 @@ button {
 
 .brand,
 .status-cluster,
-.section-heading,
-.section-meta,
 .system-identity,
 .system-title-row,
 .system-subline,
@@ -176,39 +174,24 @@ button {
 
 .dashboard-main {
   flex: 1;
-  padding: 26px 44px 36px;
+  padding: 5px 44px 36px;
 }
 
 .dashboard-section + .dashboard-section {
-  margin-top: 30px;
+  margin-top: 5px;
 }
 
-.section-heading {
-  min-height: 28px;
-  justify-content: space-between;
-  margin-bottom: 11px;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.075em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.section-meta {
-  gap: 8px;
-  color: var(--quiet);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.section-rule {
-  width: 34px;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
   height: 1px;
-  background: var(--hairline-strong);
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .core-grid {
@@ -318,6 +301,12 @@ button {
   background: var(--system-soft);
   color: var(--system-accent);
   font-size: 13px;
+}
+
+.system-logo {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
 }
 
 .system-copy {
@@ -684,11 +673,11 @@ button {
   }
 
   .dashboard-main {
-    padding: 34px 64px 46px;
+    padding: 5px 64px 46px;
   }
 
   .dashboard-section + .dashboard-section {
-    margin-top: 38px;
+    margin-top: 5px;
   }
 
   .system-header {
@@ -700,6 +689,11 @@ button {
     width: 49px;
     height: 49px;
     font-size: 15px;
+  }
+
+  .system-logo {
+    width: 28px;
+    height: 28px;
   }
 
   .system-title-row h3 {
@@ -765,7 +759,7 @@ button {
   }
 
   .dashboard-main {
-    padding: 20px 18px 30px;
+    padding: 5px 18px 30px;
   }
 
   .status-cluster [data-kumo-component="Badge"] {

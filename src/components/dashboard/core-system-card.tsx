@@ -3,6 +3,7 @@
 import { Badge, ChartLegend, LayerCard, Text } from "@cloudflare/kumo";
 
 import { MetricChart } from "@/components/dashboard/metric-chart";
+import { SystemLogo } from "@/components/dashboard/system-logo";
 import type { CoreSystem } from "@/features/dashboard/types";
 import {
   formatBytes,
@@ -54,7 +55,7 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
       <LayerCard.Secondary className="system-header">
         <div className="system-identity">
           <div className="system-glyph" aria-hidden="true">
-            {system.id === "proxmox" ? "PX" : "UR"}
+            <SystemLogo id={system.id} />
           </div>
           <div className="system-copy">
             <div className="system-title-row">
