@@ -44,12 +44,7 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
     system.memory.totalBytes === null || system.memory.usedBytes === null
       ? null
       : Math.max(0, system.memory.totalBytes - system.memory.usedBytes);
-  const statusVariant =
-    system.status === "up"
-      ? "success"
-      : system.status === "down"
-        ? "error"
-        : "neutral";
+  const statusVariant = system.status === "down" ? "error" : "neutral";
 
   return (
     <LayerCard className={`core-system-card system-${system.id}`}>
@@ -63,24 +58,30 @@ export function CoreSystemCard({ system }: CoreSystemCardProps) {
               <Text as="h3" variant="heading">
                 {system.name}
               </Text>
-              <Badge variant={statusVariant} appearance="dot">
-                {system.status === "up" ? "Online" : system.status}
-              </Badge>
-            </div>
-            <div className="system-subline">
-              <Text as="span" variant="mono-secondary">
-                {system.address}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                {system.version}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                {system.cpu.threads === null
-                  ? "—"
-                  : `${system.cpu.threads} threads`}
-              </Text>
+              {system.status !== "up" && (
+                <Badge
+                  className="system-status-badge"
+                  variant={statusVariant}
+                  appearance="dot"
+                >
+                  {system.status}
+                </Badge>
+              )}
+              <div className="system-subline">
+                <Text as="span" variant="mono-secondary">
+                  {system.address}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  {system.version}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  {system.cpu.threads === null
+                    ? "—"
+                    : `${system.cpu.threads} threads`}
+                </Text>
+              </div>
             </div>
           </div>
         </div>

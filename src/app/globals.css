@@ -103,7 +103,7 @@ button {
 
 .topbar-inner {
   display: flex;
-  height: 58px;
+  height: 29px;
   align-items: center;
   justify-content: space-between;
   padding: 0 44px;
@@ -122,6 +122,12 @@ button {
 .footer-inner {
   display: flex;
   align-items: center;
+}
+
+.brand,
+.status-cluster {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .brand {
@@ -167,7 +173,7 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.status-cluster [data-kumo-component="Badge"] {
+.source-status-badge {
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -195,10 +201,9 @@ button {
 }
 
 .core-grid {
-  position: relative;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 5px;
 }
 
 .core-system-card,
@@ -264,23 +269,20 @@ button {
   --system-soft: var(--green-soft);
 }
 
-.network-system-subline {
-  max-width: min(75vw, 1400px);
-}
-
 .system-header {
   display: flex !important;
-  min-height: 108px;
-  align-items: flex-start !important;
+  min-height: 52px;
+  align-items: center !important;
   justify-content: space-between;
-  padding: 22px 24px 17px !important;
+  padding: 9px 16px !important;
   border-bottom: 1px solid var(--hairline);
   background: var(--surface) !important;
 }
 
 .system-identity {
+  flex: 1 1 auto;
   min-width: 0;
-  gap: 12px;
+  gap: 9px;
 }
 
 .system-glyph,
@@ -294,18 +296,18 @@ button {
 }
 
 .system-glyph {
-  width: 42px;
-  height: 42px;
+  width: 30px;
+  height: 30px;
   border: 1px solid color-mix(in srgb, var(--system-accent) 35%, white);
-  border-radius: 7px;
+  border-radius: 5px;
   background: var(--system-soft);
   color: var(--system-accent);
   font-size: 13px;
 }
 
 .system-logo {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   fill: currentColor;
 }
 
@@ -314,22 +316,24 @@ button {
 }
 
 .system-title-row {
-  gap: 9px;
+  min-width: 0;
+  gap: 10px;
 }
 
 .system-title-row h3 {
-  font-size: 17px;
+  flex: 0 0 auto;
+  font-size: 15px;
   letter-spacing: -0.02em;
 }
 
-.system-title-row [data-kumo-component="Badge"] {
-  font-size: 9px;
+.system-status-badge {
+  font-size: 8px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .system-subline {
-  margin-top: 7px;
+  min-width: 0;
   gap: 7px;
   overflow: hidden;
   color: var(--hairline-strong);
@@ -343,10 +347,11 @@ button {
 }
 
 .system-uptime {
-  display: grid;
+  display: flex;
   flex: 0 0 auto;
-  gap: 5px;
-  padding-top: 3px;
+  align-items: center;
+  gap: 8px;
+  padding-left: 16px;
   text-align: right;
 }
 
@@ -447,47 +452,6 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.core-link {
-  position: absolute;
-  z-index: 4;
-  top: 120px;
-  left: 50%;
-  display: grid;
-  width: 42px;
-  height: 78px;
-  place-items: center;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.core-link::before {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: linear-gradient(
-    transparent,
-    var(--orange) 25%,
-    var(--orange) 75%,
-    transparent
-  );
-  content: "";
-}
-
-.core-link span {
-  z-index: 1;
-  padding: 5px 7px;
-  border: 1px solid #f2c193;
-  border-radius: 999px;
-  background: var(--orange-soft);
-  color: #9d4e08;
-  font-family: var(--font-geist-mono), "SFMono-Regular", monospace;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
 }
 
 .devices-grid {
@@ -632,11 +596,17 @@ button {
 }
 
 .footer-inner {
-  min-height: 46px;
+  min-height: 23px;
   justify-content: space-between;
   padding: 0 44px;
   letter-spacing: 0.045em;
   text-transform: uppercase;
+}
+
+.footer-inner > span {
+  color: var(--quiet);
+  font-size: 8px;
+  line-height: 1;
 }
 
 .state-page {
@@ -668,7 +638,7 @@ button {
   }
 
   .topbar-inner {
-    height: 70px;
+    height: 35px;
     padding-inline: 64px;
   }
 
@@ -681,23 +651,23 @@ button {
   }
 
   .system-header {
-    min-height: 126px;
-    padding: 28px 30px 21px !important;
+    min-height: 58px;
+    padding: 11px 20px !important;
   }
 
   .system-glyph {
-    width: 49px;
-    height: 49px;
-    font-size: 15px;
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
   }
 
   .system-logo {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
   }
 
   .system-title-row h3 {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .metric-panel {
@@ -719,7 +689,7 @@ button {
   }
 
   .footer-inner {
-    min-height: 58px;
+    min-height: 29px;
     padding-inline: 64px;
   }
 }
@@ -737,10 +707,6 @@ button {
 @media (max-width: 1180px) {
   .core-grid {
     grid-template-columns: 1fr;
-  }
-
-  .core-link {
-    display: none;
   }
 
   .devices-grid {
@@ -762,13 +728,13 @@ button {
     padding: 5px 18px 30px;
   }
 
-  .status-cluster [data-kumo-component="Badge"] {
+  .source-status-badge {
     display: none;
   }
 
   .system-header {
-    min-height: 96px;
-    padding: 19px 17px 15px !important;
+    min-height: 46px;
+    padding: 7px 12px !important;
   }
 
   .system-metrics {
@@ -791,6 +757,14 @@ button {
 }
 
 @media (max-width: 470px) {
+  .system-subline > :nth-child(n + 4) {
+    display: none;
+  }
+
+  .system-subline > :nth-child(-n + 3) {
+    flex: 0 0 auto;
+  }
+
   .devices-grid,
   .links-grid {
     grid-template-columns: 1fr;

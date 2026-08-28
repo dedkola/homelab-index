@@ -40,6 +40,10 @@ test("renders the approved 4K dashboard and API contract", async ({
   await expect(page.getByRole("heading", { name: "Unraid" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "UniFi" })).toBeVisible();
   await expect(page.locator("[data-system-logo]")).toHaveCount(3);
+  await expect(
+    page.locator(".system-header").getByText("Online", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText("2.5G", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("heading", { level: 3 })).toHaveCount(
     dashboard.devices.length + 3,
   );
@@ -52,12 +56,20 @@ test("renders the approved 4K dashboard and API contract", async ({
 
   const layout = await page.evaluate(() => {
     const topbar = document.querySelector(".topbar");
+    const topbarInner = document.querySelector(".topbar-inner");
+    const footerInner = document.querySelector(".footer-inner");
+    const systemHeaders = [...document.querySelectorAll(".system-header")];
     const sections = [...document.querySelectorAll(".dashboard-section")];
 
     return {
       viewportWidth: document.documentElement.clientWidth,
       documentWidth: document.documentElement.scrollWidth,
       documentHeight: document.documentElement.scrollHeight,
+      topbarInnerHeight: topbarInner!.getBoundingClientRect().height,
+      footerInnerHeight: footerInner!.getBoundingClientRect().height,
+      systemHeaderHeights: systemHeaders.map(
+        (header) => header.getBoundingClientRect().height,
+      ),
       headerGap:
         sections[0].getBoundingClientRect().top -
         topbar!.getBoundingClientRect().bottom,
@@ -73,6 +85,9 @@ test("renders the approved 4K dashboard and API contract", async ({
 
   expect(layout.documentWidth).toBe(layout.viewportWidth);
   expect(layout.documentHeight).toBeLessThanOrEqual(2160);
+  expect(layout.topbarInnerHeight).toBe(35);
+  expect(layout.footerInnerHeight).toBe(29);
+  expect(layout.systemHeaderHeights).toEqual([58, 58, 58]);
   expect(layout.headerGap).toBe(5);
   expect(layout.sectionGaps).toEqual([5, 5, 5]);
 });

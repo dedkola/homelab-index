@@ -141,7 +141,6 @@ export interface DashboardIssue {
 export interface DashboardSnapshot {
   generatedAt: string;
   pollIntervalMs: number;
-  networkLinkLabel: string;
   systems: CoreSystem[];
   unifi: UniFiNetwork;
   devices: LanDevice[];

@@ -67,9 +67,7 @@ export function UniFiNetworkCard({ network }: UniFiNetworkCardProps) {
       ? "error"
       : hasInternetIssue
         ? "warning"
-        : network.status === "up"
-          ? "success"
-          : "neutral";
+        : "neutral";
   const statusLabel =
     network.status === "down"
       ? "Down"
@@ -78,6 +76,7 @@ export function UniFiNetworkCard({ network }: UniFiNetworkCardProps) {
         : network.status === "up"
           ? "Online"
           : "Unknown";
+  const showStatus = network.status !== "up" || hasInternetIssue;
 
   return (
     <LayerCard className="network-system-card system-unifi">
@@ -91,38 +90,44 @@ export function UniFiNetworkCard({ network }: UniFiNetworkCardProps) {
               <Text as="h3" variant="heading">
                 {network.name}
               </Text>
-              <Badge variant={statusVariant} appearance="dot">
-                {statusLabel}
-              </Badge>
-            </div>
-            <div className="system-subline network-system-subline">
-              <Text as="span" variant="mono-secondary">
-                {network.address}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                {network.model}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                FW {network.firmwareVersion}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                Network {network.applicationVersion}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                CPU {percent(network.cpuPercent)}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                RAM {percent(network.memoryPercent)}
-              </Text>
-              <span>/</span>
-              <Text as="span" variant="mono-secondary">
-                Load {nullableFixed(network.loadAverage1Min, 2)}
-              </Text>
+              {showStatus && (
+                <Badge
+                  className="system-status-badge"
+                  variant={statusVariant}
+                  appearance="dot"
+                >
+                  {statusLabel}
+                </Badge>
+              )}
+              <div className="system-subline network-system-subline">
+                <Text as="span" variant="mono-secondary">
+                  {network.address}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  {network.model}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  FW {network.firmwareVersion}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  Network {network.applicationVersion}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  CPU {percent(network.cpuPercent)}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  RAM {percent(network.memoryPercent)}
+                </Text>
+                <span>/</span>
+                <Text as="span" variant="mono-secondary">
+                  Load {nullableFixed(network.loadAverage1Min, 2)}
+                </Text>
+              </div>
             </div>
           </div>
         </div>

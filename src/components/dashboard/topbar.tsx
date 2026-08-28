@@ -38,7 +38,11 @@ export function Topbar({ snapshot, refreshFailed }: TopbarProps) {
           </Text>
         </div>
         <div className="status-cluster" aria-live="polite">
-          <Badge variant={degraded ? "warning" : "success"} appearance="dot">
+          <Badge
+            className="source-status-badge"
+            variant={degraded ? "warning" : "success"}
+            appearance="dot"
+          >
             {degraded ? "Sources degraded" : "All systems online"}
           </Badge>
           <Text as="time" variant="mono-secondary">

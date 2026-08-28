@@ -282,7 +282,6 @@ export async function getDashboardSnapshot(
   return {
     generatedAt: now.toISOString(),
     pollIntervalMs: environment.DASHBOARD_POLL_INTERVAL_MS,
-    networkLinkLabel: dashboardCatalog.networkLinkLabel,
     systems: [proxmoxSystem, unraidSystem],
     unifi,
     devices,

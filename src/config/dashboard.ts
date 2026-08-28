@@ -4,7 +4,6 @@ import type {
 } from "@/features/dashboard/types";
 
 export const dashboardCatalog = {
-  networkLinkLabel: "2.5G",
   devices: [
     {
       id: "k3s-control",

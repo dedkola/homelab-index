@@ -10,7 +10,6 @@ function snapshotWithCpuHistory(history: TimeSeriesPoint[]): DashboardSnapshot {
   return {
     generatedAt: "2026-08-27T12:00:00.000Z",
     pollIntervalMs: 30_000,
-    networkLinkLabel: "2.5G",
     unifi: {
       name: "UniFi",
       address: "gateway.local",

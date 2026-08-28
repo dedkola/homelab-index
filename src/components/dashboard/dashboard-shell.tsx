@@ -84,9 +84,6 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
               {snapshot.systems.map((system) => (
                 <CoreSystemCard key={system.id} system={system} />
               ))}
-              <div className="core-link" aria-hidden="true">
-                <span>{snapshot.networkLinkLabel}</span>
-              </div>
             </div>
           </section>
 
