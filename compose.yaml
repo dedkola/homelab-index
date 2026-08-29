@@ -9,6 +9,7 @@ services:
       - .env
     volumes:
       - ./config/hosts.json:/app/config/hosts.json:ro
+      - ./k3s.config:/app/k3s.config:ro
     ports:
       - "${PORT:-3000}:3000"
     healthcheck:

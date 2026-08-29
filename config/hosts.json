@@ -46,6 +46,13 @@
       "host": "192.168.0.5",
       "check": { "type": "tcp", "port": 5500 },
       "url": "https://192.168.0.5:5500"
+    },
+    {
+      "id": "bladevault-k3s",
+      "name": "BladeVault K3s",
+      "host": "192.168.0.244",
+      "check": { "type": "tcp", "port": 80 },
+      "url": "https://192.168.0.244:80"
     }
   ]
 }

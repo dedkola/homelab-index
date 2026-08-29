@@ -6,6 +6,10 @@ import {
   loadHostCatalog,
 } from "@/features/dashboard/host-catalog";
 import {
+  K3sConfigurationError,
+  getK3sSnapshot,
+} from "@/features/dashboard/providers/k3s";
+import {
   ProxmoxConfigurationError,
   getProxmoxSnapshot,
 } from "@/features/dashboard/providers/proxmox";
@@ -21,6 +25,7 @@ import type {
   CoreSystem,
   DashboardIssue,
   DashboardSnapshot,
+  K3sCluster,
   LanDevice,
   LanDeviceDefinition,
   ProxmoxVmSnapshot,
@@ -144,6 +149,27 @@ function issueForUniFiError(error: unknown): DashboardIssue {
   };
 }
 
+function unavailableK3s(): K3sCluster {
+  return {
+    name: "K3s",
+    address: "—",
+    version: "—",
+    status: "down",
+    nodesReady: 0,
+    nodesTotal: 0,
+    podsTotal: 0,
+    nodes: [],
+  };
+}
+
+function issueForK3sError(error: unknown): DashboardIssue {
+  return {
+    source: "k3s",
+    code:
+      error instanceof K3sConfigurationError ? "configuration" : "unavailable",
+  };
+}
+
 async function resolveDevice(
   definition: LanDeviceDefinition,
   virtualMachines: Map<string, ProxmoxVmSnapshot>,
@@ -209,11 +235,13 @@ export async function getDashboardSnapshot(
 ): Promise<DashboardSnapshot> {
   const environment = getRuntimeEnvironment();
 
-  const [proxmoxResult, unraidResult, unifiResult] = await Promise.allSettled([
-    getProxmoxSnapshot(environment),
-    getUnraidSnapshot(environment, now.getTime()),
-    getUniFiSnapshot(environment, now.getTime()),
-  ]);
+  const [proxmoxResult, unraidResult, unifiResult, k3sResult] =
+    await Promise.allSettled([
+      getProxmoxSnapshot(environment),
+      getUnraidSnapshot(environment, now.getTime()),
+      getUniFiSnapshot(environment, now.getTime()),
+      getK3sSnapshot(environment, now.getTime()),
+    ]);
   const issues: DashboardIssue[] = [];
   const virtualMachines =
     proxmoxResult.status === "fulfilled"
@@ -255,6 +283,13 @@ export async function getDashboardSnapshot(
     issues.push(issueForUniFiError(unifiResult.reason));
   }
 
+  const k3s =
+    k3sResult.status === "fulfilled" ? k3sResult.value : unavailableK3s();
+
+  if (k3sResult.status === "rejected") {
+    issues.push(issueForK3sError(k3sResult.reason));
+  }
+
   let configuredHosts: LanDeviceDefinition[] = [];
 
   try {
@@ -282,6 +317,7 @@ export async function getDashboardSnapshot(
     pollIntervalMs: environment.DASHBOARD_POLL_INTERVAL_MS,
     systems: [proxmoxSystem, unraidSystem],
     unifi,
+    k3s,
     devices,
     links: [...dashboardCatalog.links],
     issues,

@@ -1,0 +1,18 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 32 32"
+  role="img"
+  aria-label="Homelab Index"
+>
+  <rect
+    x="2.25"
+    y="2.25"
+    width="13.5"
+    height="13.5"
+    rx="2.25"
+    fill="#ffffff"
+    stroke="#1a1a1d"
+    stroke-width="2.5"
+  />
+  <rect x="16.25" y="16.25" width="13.5" height="13.5" rx="2.25" fill="#f48120" />
+</svg>

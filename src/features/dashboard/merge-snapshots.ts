@@ -70,6 +70,28 @@ export function mergeDashboardSnapshots(
         ),
       },
     },
+    k3s: {
+      ...incoming.k3s,
+      nodes: incoming.k3s.nodes.map((node) => {
+        const previousNode = previous.k3s.nodes.find(
+          (candidate) => candidate.name === node.name,
+        );
+
+        if (!previousNode) {
+          return node;
+        }
+
+        return {
+          ...node,
+          cpuHistory: mergeSeries(previousNode.cpuHistory, node.cpuHistory),
+          memoryHistory: mergeSeries(
+            previousNode.memoryHistory,
+            node.memoryHistory,
+          ),
+          podHistory: mergeSeries(previousNode.podHistory, node.podHistory),
+        };
+      }),
+    },
     systems: incoming.systems.map((system) => {
       const previousSystem = previous.systems.find(
         (candidate) => candidate.id === system.id,

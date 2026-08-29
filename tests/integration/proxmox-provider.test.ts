@@ -12,6 +12,7 @@ const environment: RuntimeEnvironment = {
   DASHBOARD_POLL_INTERVAL_MS: 30_000,
   PROVIDER_TIMEOUT_MS: 8_000,
   HOSTS_CONFIG_PATH: "config/hosts.json",
+  K3S_CONFIG_PATH: "k3s.config",
   PROXMOX_API_URL: "https://pve.local:8006",
   PROXMOX_NODE: "pve",
   PROXMOX_TOKEN_ID: "dashboard@pve!homelab",

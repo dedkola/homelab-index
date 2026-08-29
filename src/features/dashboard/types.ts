@@ -97,6 +97,35 @@ export interface UniFiNetwork {
   devices: UniFiDeviceMetric;
 }
 
+export interface K3sNode {
+  name: string;
+  address: string;
+  role: string;
+  version: string;
+  status: Availability;
+  cpuPercent: number | null;
+  cpuUsedCores: number | null;
+  cpuAllocatableCores: number;
+  memoryPercent: number | null;
+  memoryUsedBytes: number | null;
+  memoryAllocatableBytes: number;
+  podCount: number;
+  cpuHistory: TimeSeriesPoint[];
+  memoryHistory: TimeSeriesPoint[];
+  podHistory: TimeSeriesPoint[];
+}
+
+export interface K3sCluster {
+  name: string;
+  address: string;
+  version: string;
+  status: Availability;
+  nodesReady: number;
+  nodesTotal: number;
+  podsTotal: number;
+  nodes: K3sNode[];
+}
+
 export type DeviceKind = "vm" | "container" | "host" | "device";
 
 export type DeviceProvider =
@@ -137,7 +166,7 @@ export interface QuickLink {
 }
 
 export interface DashboardIssue {
-  source: SystemId | "unifi" | "devices";
+  source: SystemId | "unifi" | "k3s" | "devices";
   code: string;
 }
 
@@ -146,6 +175,7 @@ export interface DashboardSnapshot {
   pollIntervalMs: number;
   systems: CoreSystem[];
   unifi: UniFiNetwork;
+  k3s: K3sCluster;
   devices: LanDevice[];
   links: QuickLink[];
   issues: DashboardIssue[];

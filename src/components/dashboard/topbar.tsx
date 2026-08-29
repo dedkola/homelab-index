@@ -17,6 +17,7 @@ export function Topbar({ snapshot, refreshFailed }: TopbarProps) {
     refreshFailed ||
     snapshot.issues.length > 0 ||
     snapshot.unifi.status !== "up" ||
+    snapshot.k3s.status !== "up" ||
     snapshot.systems.some((system) => system.status !== "up") ||
     snapshot.devices.some((device) => device.status !== "up");
 

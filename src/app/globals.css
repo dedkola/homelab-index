@@ -274,6 +274,11 @@ button {
   --system-soft: var(--green-soft);
 }
 
+.system-k3s {
+  --system-accent: var(--purple);
+  --system-soft: color-mix(in srgb, var(--purple) 11%, white);
+}
+
 .system-header {
   display: flex !important;
   min-height: 52px;
@@ -451,6 +456,19 @@ button {
 }
 
 .network-legend > div {
+  font-size: 9px;
+}
+
+.node-series-legend {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.node-series-legend > div {
+  min-width: 0;
   font-size: 9px;
 }
 
@@ -739,6 +757,10 @@ button {
 
   .system-metrics {
     grid-template-columns: 1fr;
+  }
+
+  .node-series-legend {
+    flex-wrap: wrap;
   }
 
   .metric-panel + .metric-panel {

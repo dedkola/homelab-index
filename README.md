@@ -1,12 +1,13 @@
 # Homelab Index
 
-Next.js 16 App Router dashboard for UniFi, Proxmox, Unraid, selected LAN workloads, and homelab links.
+Next.js 16 App Router dashboard for UniFi, Proxmox, Unraid, K3s, selected LAN workloads, and homelab links.
 
 ## Stack
 
 - Next.js 16 App Router and React 19
 - Cloudflare Kumo and ECharts
 - Typed UniFi, Proxmox REST, and Unraid GraphQL adapters
+- Typed Kubernetes API adapter with per-node K3s charts
 - Vitest and Playwright
 - Docker standalone output
 
@@ -66,6 +67,126 @@ UNIFI_SITE_MANAGER_API_KEY=replace-me
 
 Both keys remain server-only. The local and Site Manager sources degrade independently, so the Network card continues to show whichever telemetry remains available. Set `UNIFI_SITE_ID`, `UNIFI_GATEWAY_ID`, or `UNIFI_SITE_MANAGER_SITE_ID` only when automatic selection is ambiguous.
 
+### K3s
+
+Place a kubeconfig named `k3s.config` in the project root, beside `.env`:
+
+```text
+homelab-index/
+├── .env
+├── k3s.config
+└── config/
+    └── hosts.json
+```
+
+`K3S_CONFIG_PATH` defaults to `k3s.config`. The file is read from the server on
+every dashboard poll and is excluded from both Git and Docker build contexts.
+The K3s card appears after LAN workloads and charts CPU load, memory, and pod
+count for every node. CPU and memory come from the cluster Metrics API; pod
+counts come from each pod's assigned node.
+
+K3s includes metrics-server unless it was explicitly disabled. Confirm it is
+available before connecting the dashboard:
+
+```bash
+sudo k3s kubectl get apiservice | grep metrics.k8s.io
+sudo k3s kubectl top nodes
+```
+
+Do not copy `/etc/rancher/k3s/k3s.yaml` into a permanent deployment. It uses the
+unrestricted `system:admin` identity. Create a dedicated read-only identity by
+applying this manifest on a K3s server:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: homelab-index
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homelab-index-reader
+  namespace: homelab-index
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homelab-index-reader
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  - nonResourceURLs: ["/version"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homelab-index-reader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: homelab-index-reader
+subjects:
+  - kind: ServiceAccount
+    name: homelab-index-reader
+    namespace: homelab-index
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: homelab-index-reader-token
+  namespace: homelab-index
+  annotations:
+    kubernetes.io/service-account.name: homelab-index-reader
+type: kubernetes.io/service-account-token
+```
+
+Save the manifest outside the cluster so it can be reapplied after a reinstall.
+Once Kubernetes has populated the Secret, generate the restricted kubeconfig:
+
+```bash
+K3S_CA_TEMP=$(mktemp)
+K3S_READER_TOKEN=$(sudo k3s kubectl \
+  --namespace homelab-index \
+  get secret homelab-index-reader-token \
+  --output jsonpath='{.data.token}' | base64 --decode)
+
+sudo k3s kubectl \
+  --namespace homelab-index \
+  get secret homelab-index-reader-token \
+  --output jsonpath='{.data.ca\.crt}' | base64 --decode > "$K3S_CA_TEMP"
+
+sudo k3s kubectl config set-cluster k3s \
+  --kubeconfig k3s.config \
+  --server https://192.168.0.240:6443 \
+  --certificate-authority "$K3S_CA_TEMP" \
+  --embed-certs=true
+sudo k3s kubectl config set-credentials homelab-index-reader \
+  --kubeconfig k3s.config \
+  --token "$K3S_READER_TOKEN"
+sudo k3s kubectl config set-context homelab-index \
+  --kubeconfig k3s.config \
+  --cluster k3s \
+  --user homelab-index-reader
+sudo k3s kubectl config use-context homelab-index \
+  --kubeconfig k3s.config
+
+chmod 600 k3s.config
+rm -f "$K3S_CA_TEMP"
+unset K3S_READER_TOKEN
+```
+
+Keep the K3s API on the trusted LAN, make `192.168.0.240` a stable address, and
+include that address under `tls-san` in `/etc/rancher/k3s/config.yaml`. A fresh
+cluster has a new CA and token, so after reinstalling, reapply the saved RBAC
+manifest and replace `k3s.config`. The dashboard picks up the replacement on its
+next poll.
+
 ## Devices and links
 
 Quick links remain in `src/config/dashboard.ts`. LAN workloads come only from
@@ -112,10 +233,14 @@ icons are selected.
 
 ```bash
 cp .env.example .env
+chgrp 1001 k3s.config
+chmod 640 k3s.config
 docker compose up -d --build
 ```
 
-The container runs as a non-root user and exposes a health check at `/api/health`.
+The group-readable mode lets the container's non-root `nextjs` user (GID 1001)
+read the mounted kubeconfig without making it world-readable. The container
+exposes a health check at `/api/health`.
 
 ## Published container image
 
@@ -139,6 +264,18 @@ Create `/mnt/user/appdata/homelab-index/hosts.json` using the catalog format
 above. Add a **Path** with container path `/app/config/hosts.json`, host path
 `/mnt/user/appdata/homelab-index/hosts.json`, and read-only access. Catalog
 edits are picked up by the next dashboard poll.
+
+Place the restricted kubeconfig at
+`/mnt/user/appdata/homelab-index/k3s.config`, beside `.env`, and protect it:
+
+```bash
+chown root:1001 /mnt/user/appdata/homelab-index/k3s.config
+chmod 640 /mnt/user/appdata/homelab-index/k3s.config
+```
+
+Add another read-only **Path** with container path `/app/k3s.config` and host
+path `/mnt/user/appdata/homelab-index/k3s.config`. The default
+`K3S_CONFIG_PATH=k3s.config` resolves to this mounted file.
 
 For each non-commented key in `.env.example`, select
 **Add another Path, Port, Variable, Label or Device**, choose **Variable**, and
@@ -165,6 +302,7 @@ docker run -d \
   --restart unless-stopped \
   --env-file /mnt/user/appdata/homelab-index/.env \
   --mount type=bind,src=/mnt/user/appdata/homelab-index/hosts.json,dst=/app/config/hosts.json,readonly \
+  --mount type=bind,src=/mnt/user/appdata/homelab-index/k3s.config,dst=/app/k3s.config,readonly \
   -p 3000:3000 \
   ghcr.io/dedkola/homelab-index:latest
 ```
@@ -181,6 +319,7 @@ directly on the Proxmox VE host. Inside the VM, create this deployment folder:
 ├── config/
 │   └── hosts.json
 ├── compose.yaml
+├── k3s.config
 └── .env
 ```
 
@@ -189,6 +328,8 @@ the file:
 
 ```bash
 chmod 600 /opt/homelab-index/.env
+chown root:1001 /opt/homelab-index/k3s.config
+chmod 640 /opt/homelab-index/k3s.config
 ```
 
 Use this `/opt/homelab-index/compose.yaml`:
@@ -203,6 +344,7 @@ services:
       - .env
     volumes:
       - ./config/hosts.json:/app/config/hosts.json:ro
+      - ./k3s.config:/app/k3s.config:ro
     ports:
       - "3000:3000"
 ```
@@ -225,6 +367,8 @@ PROXMOX_API_URL=https://<proxmox-ip>:8006
 UNRAID_GRAPHQL_URL=http://<unraid-ip>/graphql
 UNIFI_API_URL=https://<unifi-ip>/proxy/network/integration
 ```
+
+`k3s.config` must likewise use the K3s server's LAN address, not `localhost`.
 
 The container must be able to route to provider addresses and every monitored
 host or `host:port`. Keep port `3000` LAN-only or protect it with an
@@ -257,6 +401,7 @@ pnpm exec playwright install chromium
 src/app/                         App Router pages and route handlers
 src/components/dashboard/        Kumo dashboard UI
 config/hosts.json                 Runtime TCP and ICMP host catalog
+k3s.config                        Ignored runtime Kubernetes credentials
 src/config/dashboard.ts           Quick links
 src/features/dashboard/          Domain model, providers, history, orchestration
 src/lib/                         Environment, HTTP, and formatting utilities

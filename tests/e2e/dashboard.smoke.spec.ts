@@ -12,17 +12,24 @@ test("renders the approved 4K dashboard and API contract", async ({
   const dashboard = (await dashboardResponse.json()) as {
     systems: unknown[];
     unifi: unknown;
+    k3s: { nodes: unknown[] };
     devices: { status: "up" | "down" | "unknown"; url?: string }[];
     links: unknown[];
   };
   expect(dashboard.systems).toHaveLength(2);
   expect(dashboard.unifi).toBeTruthy();
-  expect(dashboard.devices).toHaveLength(9);
+  expect(dashboard.k3s).toBeTruthy();
+  expect(dashboard.devices).toHaveLength(8);
   expect(dashboard.links).toHaveLength(0);
 
   await page.goto("/");
 
-  for (const sectionTitle of ["Network", "Core systems", "LAN workloads"]) {
+  for (const sectionTitle of [
+    "Network",
+    "Core systems",
+    "LAN workloads",
+    "K3s cluster",
+  ]) {
     await expect(
       page.getByRole("heading", { name: sectionTitle }),
     ).toBeAttached();
@@ -40,7 +47,13 @@ test("renders the approved 4K dashboard and API contract", async ({
   await expect(
     page.getByRole("heading", { name: "UniFi", exact: true }),
   ).toBeVisible();
-  await expect(page.locator("[data-system-logo]")).toHaveCount(3);
+  await expect(
+    page
+      .locator(".k3s-system-card")
+      .getByRole("heading", { name: "K3s", exact: true }),
+  ).toBeVisible();
+  await expect(page.locator("[data-system-logo]")).toHaveCount(4);
+  await expect(page.locator(".k3s-system-card .metric-panel")).toHaveCount(3);
   await expect(page.getByRole("heading", { name: "Quick links" })).toHaveCount(
     0,
   );
@@ -52,12 +65,12 @@ test("renders the approved 4K dashboard and API contract", async ({
       logos.map((logo) => logo.getAttribute("data-service-logo")),
     ),
   ).toEqual([
-    "gitea",
-    "mysql",
-    "k3s",
     "samba",
     "vercelab",
     "bladevault-backend",
+    "gitea",
+    "mysql",
+    "k3s",
     "bladevault-unraid",
   ]);
   await expect(
@@ -91,7 +104,7 @@ test("renders the approved 4K dashboard and API contract", async ({
   await copyIpButtons.first().click();
   await expect(page.getByRole("button", { name: /IP copied$/ })).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 3 })).toHaveCount(
-    dashboard.devices.length + 3,
+    dashboard.devices.length + 4,
   );
   await expect(
     page.getByRole("link", { name: /Open .* in a new window/ }),
@@ -157,8 +170,9 @@ test("renders the approved 4K dashboard and API contract", async ({
   expect(layout.topbarInnerHeight).toBe(35);
   expect(layout.footerInnerHeight).toBe(29);
   expect(layout.statusTextSizes).toEqual([8, 8]);
-  expect(layout.systemHeaderHeights).toEqual([58, 58, 58]);
+  expect(layout.systemHeaderHeights).toEqual([58, 58, 58, 58]);
   expect(layout.systemLogoInsets).toEqual([
+    { top: 12, bottom: 12 },
     { top: 12, bottom: 12 },
     { top: 12, bottom: 12 },
     { top: 12, bottom: 12 },
@@ -170,5 +184,5 @@ test("renders the approved 4K dashboard and API contract", async ({
     ),
   ).toBe(true);
   expect(layout.headerGap).toBe(5);
-  expect(layout.sectionGaps).toEqual([5, 5]);
+  expect(layout.sectionGaps).toEqual([5, 5, 5]);
 });

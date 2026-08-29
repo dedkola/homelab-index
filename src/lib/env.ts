@@ -21,6 +21,7 @@ const runtimeEnvironmentSchema = z.object({
     .max(30_000)
     .default(8_000),
   HOSTS_CONFIG_PATH: z.string().min(1).default("config/hosts.json"),
+  K3S_CONFIG_PATH: z.string().min(1).default("k3s.config"),
   PROXMOX_API_URL: z.string().url().optional(),
   PROXMOX_NODE: z.string().min(1).optional(),
   PROXMOX_TOKEN_ID: z.string().min(1).optional(),

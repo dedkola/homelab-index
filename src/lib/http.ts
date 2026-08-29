@@ -8,6 +8,9 @@ interface JsonRequestOptions {
   body?: string;
   timeoutMs: number;
   verifyTls: boolean;
+  ca?: string;
+  cert?: string;
+  key?: string;
 }
 
 export class HttpRequestError extends Error {
@@ -27,6 +30,9 @@ export async function requestJson<T>(
   const dispatcher = new Agent({
     connect: {
       rejectUnauthorized: options.verifyTls,
+      ca: options.ca,
+      cert: options.cert,
+      key: options.key,
     },
   });
 

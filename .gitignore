@@ -39,6 +39,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Kubernetes credentials
+/k3s.config
+
 # vercel
 .vercel
 

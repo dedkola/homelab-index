@@ -4,6 +4,7 @@ import { Text, TooltipProvider } from "@cloudflare/kumo";
 import { useCallback, useEffect, useState } from "react";
 
 import { CoreSystemCard } from "@/components/dashboard/core-system-card";
+import { K3sClusterCard } from "@/components/dashboard/k3s-cluster-card";
 import { LanDeviceCard } from "@/components/dashboard/lan-device-card";
 import { QuickLinkCard } from "@/components/dashboard/quick-link-card";
 import { Topbar } from "@/components/dashboard/topbar";
@@ -99,6 +100,16 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
                 <LanDeviceCard key={device.id} device={device} />
               ))}
             </div>
+          </section>
+
+          <section
+            className="dashboard-section"
+            aria-labelledby="k3s-cluster-title"
+          >
+            <h2 id="k3s-cluster-title" className="visually-hidden">
+              K3s cluster
+            </h2>
+            <K3sClusterCard cluster={snapshot.k3s} />
           </section>
 
           {snapshot.links.length > 0 ? (

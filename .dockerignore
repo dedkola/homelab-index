@@ -1,5 +1,6 @@
 .env*
 !.env.example
+k3s.config
 .git
 .gitignore
 .next

@@ -59,6 +59,34 @@ function snapshotWithCpuHistory(history: TimeSeriesPoint[]): DashboardSnapshot {
         wanCount: 2,
       },
     },
+    k3s: {
+      name: "K3s",
+      address: "192.168.0.240",
+      version: "v1.36.2+k3s1",
+      status: "up",
+      nodesReady: 1,
+      nodesTotal: 1,
+      podsTotal: 4,
+      nodes: [
+        {
+          name: "k3s-server",
+          address: "192.168.0.240",
+          role: "control-plane",
+          version: "v1.36.2+k3s1",
+          status: "up",
+          cpuPercent: 10,
+          cpuUsedCores: 0.2,
+          cpuAllocatableCores: 2,
+          memoryPercent: 20,
+          memoryUsedBytes: 2_000,
+          memoryAllocatableBytes: 10_000,
+          podCount: 4,
+          cpuHistory: history,
+          memoryHistory: [],
+          podHistory: [],
+        },
+      ],
+    },
     systems: [
       {
         id: "unraid",
@@ -121,5 +149,6 @@ describe("dashboard snapshot history", () => {
     expect(merged.systems[0].cpu.history).toHaveLength(
       previous.systems[0].cpu.history.length + 1,
     );
+    expect(merged.k3s.nodes[0].cpuHistory.at(-1)).toEqual(nextPoint);
   });
 });
