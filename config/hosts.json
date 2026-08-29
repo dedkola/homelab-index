@@ -14,6 +14,38 @@
       "host": "192.168.0.7",
       "check": { "type": "tcp", "port": 443 },
       "url": "https://192.168.0.7:443"
+    },
+    {
+      "id": "bladevault-backend",
+      "name": "BladeVault Backend",
+      "host": "192.168.0.175",
+      "check": { "type": "icmp" }
+    },
+    {
+      "id": "gitea",
+      "name": "Gitea",
+      "host": "192.168.0.97",
+      "check": { "type": "tcp", "port": 3000 },
+      "url": "https://192.168.0.97:3000"
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "host": "192.168.0.93",
+      "check": { "type": "icmp" }
+    },
+    {
+      "id": "k3s",
+      "name": "K3s",
+      "host": "192.168.0.240",
+      "check": { "type": "icmp" }
+    },
+    {
+      "id": "bladevault-unraid",
+      "name": "BladeVault Unraid",
+      "host": "192.168.0.5",
+      "check": { "type": "tcp", "port": 5500 },
+      "url": "https://192.168.0.5:5500"
     }
   ]
 }

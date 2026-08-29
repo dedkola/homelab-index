@@ -5,6 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { Button, LayerCard, LinkButton, Text, Tooltip } from "@cloudflare/kumo";
 import { ArrowSquareOutIcon, CheckIcon, CopyIcon } from "@phosphor-icons/react";
 
+import {
+  hasServiceLogo,
+  ServiceLogo,
+} from "@/components/dashboard/service-logo";
 import type { LanDevice } from "@/features/dashboard/types";
 
 interface LanDeviceCardProps {
@@ -49,6 +53,7 @@ export function LanDeviceCard({ device }: LanDeviceCardProps) {
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const host =
     device.provider.type === "proxmox" ? device.address : device.provider.host;
+  const serviceLogoId = hasServiceLogo(device.id) ? device.id : null;
 
   useEffect(
     () => () => {
@@ -79,7 +84,11 @@ export function LanDeviceCard({ device }: LanDeviceCardProps) {
       <div className="device-topline">
         <div className="device-identity">
           <div className="device-glyph" aria-hidden="true">
-            {KIND_GLYPHS[device.kind]}
+            {serviceLogoId ? (
+              <ServiceLogo id={serviceLogoId} />
+            ) : (
+              KIND_GLYPHS[device.kind]
+            )}
           </div>
           <div className="device-copy">
             <Text as="h3" variant="heading">
@@ -92,7 +101,7 @@ export function LanDeviceCard({ device }: LanDeviceCardProps) {
         </div>
 
         <div className="device-side">
-          <div className="device-status">
+          <div className="device-status" data-status={device.status}>
             <Text
               as="span"
               variant={

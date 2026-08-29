@@ -13,6 +13,24 @@
       "name": "Closed TCP",
       "host": "127.0.0.1",
       "check": { "type": "tcp", "port": 65534 }
+    },
+    {
+      "id": "gitea",
+      "name": "Gitea",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
+    },
+    {
+      "id": "k3s",
+      "name": "K3s",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
     }
   ]
 }

@@ -12,12 +12,12 @@ test("renders the approved 4K dashboard and API contract", async ({
   const dashboard = (await dashboardResponse.json()) as {
     systems: unknown[];
     unifi: unknown;
-    devices: { url?: string }[];
+    devices: { status: "up" | "down" | "unknown"; url?: string }[];
     links: unknown[];
   };
   expect(dashboard.systems).toHaveLength(2);
   expect(dashboard.unifi).toBeTruthy();
-  expect(dashboard.devices).toHaveLength(2);
+  expect(dashboard.devices).toHaveLength(5);
   expect(dashboard.links).toHaveLength(10);
 
   await page.goto("/");
@@ -40,6 +40,13 @@ test("renders the approved 4K dashboard and API contract", async ({
   await expect(page.getByRole("heading", { name: "Unraid" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "UniFi" })).toBeVisible();
   await expect(page.locator("[data-system-logo]")).toHaveCount(3);
+  const serviceLogos = page.locator("[data-service-logo]");
+  await expect(serviceLogos).toHaveCount(3);
+  expect(
+    await serviceLogos.evaluateAll((logos) =>
+      logos.map((logo) => logo.getAttribute("data-service-logo")),
+    ),
+  ).toEqual(["gitea", "mysql", "k3s"]);
   await expect(
     page.locator(".system-header").getByText("Online", { exact: true }),
   ).toHaveCount(0);
@@ -50,6 +57,20 @@ test("renders the approved 4K dashboard and API contract", async ({
   await expect(
     page.locator(".device-card").getByText("MEM", { exact: true }),
   ).toHaveCount(0);
+  const statusLabels = page.locator(".device-status > span");
+  for (const [index, device] of dashboard.devices.entries()) {
+    if (device.status === "up") {
+      await expect(statusLabels.nth(index)).toHaveCSS(
+        "color",
+        "rgb(22, 134, 75)",
+      );
+    } else if (device.status === "down") {
+      await expect(statusLabels.nth(index)).toHaveCSS(
+        "color",
+        "rgb(199, 55, 55)",
+      );
+    }
+  }
   const copyIpButtons = page.getByRole("button", {
     name: /Copy .* IP address/,
   });
