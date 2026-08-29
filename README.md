@@ -68,8 +68,8 @@ Both keys remain server-only. The local and Site Manager sources degrade indepen
 
 ## Devices and links
 
-Provider-backed Proxmox workloads and quick links remain in
-`src/config/dashboard.ts`. Add TCP-monitored hosts to `config/hosts.json`:
+Quick links remain in `src/config/dashboard.ts`. LAN workloads come only from
+TCP- or ICMP-monitored hosts in `config/hosts.json`:
 
 ```json
 {
@@ -79,28 +79,30 @@ Provider-backed Proxmox workloads and quick links remain in
       "id": "home-assistant",
       "name": "Home Assistant",
       "host": "192.168.10.40",
-      "port": 8123,
+      "check": { "type": "tcp", "port": 8123 },
       "url": "http://192.168.10.40:8123"
     },
     {
-      "id": "nas-ssh",
-      "name": "NAS SSH",
+      "id": "backup-server",
+      "name": "Backup Server",
       "host": "192.168.10.11",
-      "port": 22
+      "check": { "type": "icmp" }
     }
   ]
 }
 ```
 
-`id`, `name`, `host`, and `port` are required. `url` is optional and adds the
+`id`, `name`, `host`, and `check` are required. `url` is optional and adds the
 card's open button. Use a hostname or IP address without a URL scheme for
-`host`; ports must be between `1` and `65535`.
+`host`; TCP ports must be between `1` and `65535`. The legacy top-level `port`
+field remains supported as a TCP check for existing catalogs.
 
-The server opens a TCP connection to each `host:port`, so `Up` means the
-configured port accepted a connection rather than only answering ICMP ping.
-The file is validated and re-read on every dashboard poll. Invalid catalogs
-degrade the devices source while the provider-backed cards remain available.
-Host cards never fabricate CPU, memory, or uptime values.
+TCP checks report `Up` when the configured port accepts a connection. ICMP
+checks report `Up` when the host answers one ping; firewalls that block ICMP
+will make an otherwise running host appear down. The file is validated and
+re-read on every dashboard poll. Invalid catalogs degrade the devices source
+while the provider-backed cards remain available. Host cards never fabricate
+CPU, memory, or uptime values.
 
 Set `HOSTS_CONFIG_PATH` only when the catalog is stored somewhere other than
 `config/hosts.json`. Placeholder glyphs remain intentional until final service
@@ -225,12 +227,12 @@ UNIFI_API_URL=https://<unifi-ip>/proxy/network/integration
 ```
 
 The container must be able to route to provider addresses and every monitored
-`host:port`. Keep port `3000` LAN-only or protect it with an authenticated
-reverse proxy. After changing `.env`, recreate the container so the application
-reads the new values. Mounted `hosts.json` edits need no restart and appear on
-the next poll. If the catalog is maintained in GitHub, update the checked-out
-file on the Docker host; restarting an image without updating its mounted file
-does not fetch repository changes.
+host or `host:port`. Keep port `3000` LAN-only or protect it with an
+authenticated reverse proxy. After changing `.env`, recreate the container so
+the application reads the new values. Mounted `hosts.json` edits need no restart
+and appear on the next poll. If the catalog is maintained in GitHub, update the
+checked-out file on the Docker host; restarting an image without updating its
+mounted file does not fetch repository changes.
 
 ## Quality commands
 
@@ -254,8 +256,8 @@ pnpm exec playwright install chromium
 ```text
 src/app/                         App Router pages and route handlers
 src/components/dashboard/        Kumo dashboard UI
-config/hosts.json                 Runtime TCP host catalog
-src/config/dashboard.ts           Provider-backed devices and quick links
+config/hosts.json                 Runtime TCP and ICMP host catalog
+src/config/dashboard.ts           Quick links
 src/features/dashboard/          Domain model, providers, history, orchestration
 src/lib/                         Environment, HTTP, and formatting utilities
 tests/unit/                       Pure unit tests

@@ -10,6 +10,7 @@ import type { LanDeviceDefinition } from "@/features/dashboard/types";
 
 const HOST_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const HOSTNAME_LABEL_PATTERN = /^(?!-)[a-z0-9-]{1,63}(?<!-)$/i;
+const portSchema = z.number().int().min(1).max(65_535);
 
 function isHostname(value: string): boolean {
   if (isIP(value) !== 0) {
@@ -30,6 +31,11 @@ function isHttpUrl(value: string): boolean {
   return protocol === "http:" || protocol === "https:";
 }
 
+const hostCheckSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("tcp"), port: portSchema }).strict(),
+  z.object({ type: z.literal("icmp") }).strict(),
+]);
+
 const monitoredHostSchema = z
   .object({
     id: z.string().trim().min(1).max(64).regex(HOST_ID_PATTERN),
@@ -37,7 +43,8 @@ const monitoredHostSchema = z
     host: z.string().trim().min(1).max(253).refine(isHostname, {
       message: "Must be a valid IP address or hostname",
     }),
-    port: z.number().int().min(1).max(65_535),
+    check: hostCheckSchema.optional(),
+    port: portSchema.optional(),
     url: z
       .string()
       .url()
@@ -46,11 +53,34 @@ const monitoredHostSchema = z
       })
       .optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((host, context) => {
+    if (!host.check && host.port === undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "Must define check or legacy port",
+        path: ["check"],
+      });
+    }
+
+    if (host.check && host.port !== undefined) {
+      context.addIssue({
+        code: "custom",
+        message: "Use check.port instead of combining check with legacy port",
+        path: ["port"],
+      });
+    }
+  })
+  .transform(({ port, ...host }) => ({
+    ...host,
+    check: host.check ?? { type: "tcp" as const, port: port as number },
+  }));
 
 const hostCatalogSchema = z
   .object({
     version: z.literal(1),
+    _comment: z.string().max(240).optional(),
+    _examples: z.array(monitoredHostSchema).max(8).optional(),
     hosts: z.array(monitoredHostSchema).max(128),
   })
   .strict()
@@ -105,14 +135,28 @@ export async function loadHostCatalog(
       usedIds.add(host.id);
     }
 
-    return catalog.hosts.map((host) => ({
-      id: host.id,
-      name: host.name,
-      address: formatHostAndPort(host.host, host.port),
-      url: host.url,
-      kind: "host",
-      provider: { type: "tcp", host: host.host, port: host.port },
-    }));
+    return catalog.hosts.map((host) => {
+      const provider =
+        host.check.type === "tcp"
+          ? {
+              type: "tcp" as const,
+              host: host.host,
+              port: host.check.port,
+            }
+          : { type: "icmp" as const, host: host.host };
+
+      return {
+        id: host.id,
+        name: host.name,
+        address:
+          provider.type === "tcp"
+            ? formatHostAndPort(provider.host, provider.port)
+            : provider.host,
+        url: host.url,
+        kind: "host",
+        provider,
+      };
+    });
   } catch (error) {
     if (error instanceof HostCatalogConfigurationError) {
       throw error;

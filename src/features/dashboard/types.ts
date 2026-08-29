@@ -108,6 +108,10 @@ export type DeviceProvider =
       type: "tcp";
       host: string;
       port: number;
+    }
+  | {
+      type: "icmp";
+      host: string;
     };
 
 export interface LanDeviceDefinition {

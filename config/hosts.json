@@ -1,4 +1,19 @@
 {
   "version": 1,
-  "hosts": []
+
+  "hosts": [
+    {
+      "id": "samba",
+      "name": "Samba",
+      "host": "192.168.0.159",
+      "check": { "type": "icmp" }
+    },
+    {
+      "id": "vercelab",
+      "name": "vercelab",
+      "host": "192.168.0.7",
+      "check": { "type": "tcp", "port": 443 },
+      "url": "https://192.168.0.7:443"
+    }
+  ]
 }

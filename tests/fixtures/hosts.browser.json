@@ -5,14 +5,14 @@
       "id": "dashboard-tcp",
       "name": "Dashboard TCP",
       "host": "127.0.0.1",
-      "port": 3100,
+      "check": { "type": "tcp", "port": 3100 },
       "url": "http://127.0.0.1:3100"
     },
     {
       "id": "closed-tcp",
       "name": "Closed TCP",
       "host": "127.0.0.1",
-      "port": 65534
+      "check": { "type": "tcp", "port": 65534 }
     }
   ]
 }

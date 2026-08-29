@@ -28,6 +28,7 @@ import type {
   UniFiNetwork,
 } from "@/features/dashboard/types";
 import { getRuntimeEnvironment } from "@/lib/env";
+import { requestIcmpReachability } from "@/lib/icmp";
 import { requestTcpReachability } from "@/lib/tcp";
 
 const DEVICE_PROBE_CONCURRENCY = 8;
@@ -160,11 +161,14 @@ async function resolveDevice(
     };
   }
 
-  const reachable = await requestTcpReachability(
-    definition.provider.host,
-    definition.provider.port,
-    timeoutMs,
-  );
+  const reachable =
+    definition.provider.type === "tcp"
+      ? await requestTcpReachability(
+          definition.provider.host,
+          definition.provider.port,
+          timeoutMs,
+        )
+      : await requestIcmpReachability(definition.provider.host, timeoutMs);
 
   return {
     ...definition,
@@ -254,10 +258,7 @@ export async function getDashboardSnapshot(
   let configuredHosts: LanDeviceDefinition[] = [];
 
   try {
-    configuredHosts = await loadHostCatalog(
-      environment.HOSTS_CONFIG_PATH,
-      dashboardCatalog.devices.map((device) => device.id),
-    );
+    configuredHosts = await loadHostCatalog(environment.HOSTS_CONFIG_PATH);
   } catch (error) {
     issues.push({
       source: "devices",
@@ -268,10 +269,7 @@ export async function getDashboardSnapshot(
     });
   }
 
-  const deviceDefinitions: LanDeviceDefinition[] = [
-    ...dashboardCatalog.devices,
-    ...configuredHosts,
-  ];
+  const deviceDefinitions: LanDeviceDefinition[] = configuredHosts;
   const devices = await mapWithConcurrency(
     deviceDefinitions,
     DEVICE_PROBE_CONCURRENCY,

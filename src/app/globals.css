@@ -116,7 +116,7 @@ button {
 .system-subline,
 .device-topline,
 .device-identity,
-.device-meta,
+.device-actions,
 .quick-link-card,
 .quick-link-identity,
 .footer-inner {
@@ -174,8 +174,13 @@ button {
 }
 
 .source-status-badge {
+  font-size: 8px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.status-cluster time {
+  font-size: 8px;
 }
 
 .dashboard-main {
@@ -274,6 +279,7 @@ button {
   min-height: 52px;
   align-items: center !important;
   justify-content: space-between;
+  margin-block: 0 !important;
   padding: 9px 16px !important;
   border-bottom: 1px solid var(--hairline);
   background: var(--surface) !important;
@@ -303,6 +309,7 @@ button {
   background: var(--system-soft);
   color: var(--system-accent);
   font-size: 13px;
+  transform: translateY(0.5px);
 }
 
 .system-logo {
@@ -462,6 +469,7 @@ button {
 
 .device-card {
   min-width: 0;
+  min-height: 74px;
   padding: 15px !important;
   transition:
     border-color 150ms ease,
@@ -478,6 +486,7 @@ button {
 }
 
 .device-topline {
+  width: 100%;
   justify-content: space-between;
   gap: 10px;
 }
@@ -523,28 +532,21 @@ button {
   flex: 0 0 auto;
 }
 
-.device-meters {
+.device-side {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 15px;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 4px;
 }
 
-.device-meter {
-  min-width: 0;
-  font-family: var(--font-geist-mono), "SFMono-Regular", monospace;
-  font-size: 9px;
-}
-
-.device-meter [role="meter"] {
-  height: 3px;
-}
-
-.device-meta {
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 12px;
+.device-status {
+  white-space: nowrap;
   text-transform: uppercase;
+}
+
+.device-actions {
+  justify-content: flex-end;
+  gap: 1px;
 }
 
 .links-grid {
@@ -679,7 +681,7 @@ button {
   }
 
   .device-card {
-    min-height: 166px;
+    min-height: 82px;
     padding: 19px !important;
   }
 

@@ -13,6 +13,7 @@ import { getUnraidSnapshot } from "@/features/dashboard/providers/unraid";
 import { getUniFiSnapshot } from "@/features/dashboard/providers/unifi";
 import type { CoreSystem, UniFiNetwork } from "@/features/dashboard/types";
 import { resetRuntimeEnvironmentForTests } from "@/lib/env";
+import { requestIcmpReachability } from "@/lib/icmp";
 import { requestTcpReachability } from "@/lib/tcp";
 
 vi.mock("@/features/dashboard/host-catalog", async (importOriginal) => {
@@ -50,6 +51,7 @@ vi.mock("@/features/dashboard/providers/unifi", async (importOriginal) => {
 });
 
 vi.mock("@/lib/tcp", () => ({ requestTcpReachability: vi.fn() }));
+vi.mock("@/lib/icmp", () => ({ requestIcmpReachability: vi.fn() }));
 
 function system(id: CoreSystem["id"]): CoreSystem {
   return {
@@ -135,6 +137,7 @@ describe("dashboard snapshot integration", () => {
     process.env.HOSTS_CONFIG_PATH = "config/hosts.json";
     resetRuntimeEnvironmentForTests();
     vi.mocked(loadHostCatalog).mockReset().mockResolvedValue([]);
+    vi.mocked(requestIcmpReachability).mockReset().mockResolvedValue(true);
     vi.mocked(requestTcpReachability).mockReset().mockResolvedValue(true);
     vi.mocked(getProxmoxSnapshot)
       .mockReset()
@@ -171,7 +174,7 @@ describe("dashboard snapshot integration", () => {
       "proxmox",
       "unraid",
     ]);
-    expect(snapshot.devices).toHaveLength(8);
+    expect(snapshot.devices).toHaveLength(0);
     expect(snapshot.links).toHaveLength(10);
     expect(snapshot.unifi).toMatchObject({
       model: "UCG Ultra",
@@ -179,11 +182,6 @@ describe("dashboard snapshot integration", () => {
       devices: { online: 5, total: 5 },
     });
     expect(snapshot.issues).toEqual([]);
-    expect(snapshot.devices[0]).toMatchObject({
-      status: "up",
-      cpuPercent: 12,
-      memoryPercent: 34,
-    });
   });
 
   it("does not represent unavailable provider telemetry as zero", async () => {
@@ -214,7 +212,7 @@ describe("dashboard snapshot integration", () => {
     });
   });
 
-  it("appends configured hosts and reports their TCP port status", async () => {
+  it("appends configured hosts and reports TCP and ICMP status", async () => {
     vi.mocked(loadHostCatalog).mockResolvedValue([
       {
         id: "open-service",
@@ -231,15 +229,23 @@ describe("dashboard snapshot integration", () => {
         kind: "host",
         provider: { type: "tcp", host: "closed.local", port: 22 },
       },
+      {
+        id: "backup-server",
+        name: "Backup server",
+        address: "backup.local",
+        kind: "host",
+        provider: { type: "icmp", host: "backup.local" },
+      },
     ]);
     vi.mocked(requestTcpReachability).mockImplementation(async (host) =>
       host.startsWith("open"),
     );
+    vi.mocked(requestIcmpReachability).mockResolvedValue(true);
 
     const snapshot = await getDashboardSnapshot();
 
-    expect(snapshot.devices).toHaveLength(10);
-    expect(snapshot.devices.slice(-2)).toMatchObject([
+    expect(snapshot.devices).toHaveLength(3);
+    expect(snapshot.devices).toMatchObject([
       {
         id: "open-service",
         status: "up",
@@ -254,18 +260,26 @@ describe("dashboard snapshot integration", () => {
         memoryPercent: null,
         uptimeSeconds: null,
       },
+      {
+        id: "backup-server",
+        status: "up",
+        cpuPercent: null,
+        memoryPercent: null,
+        uptimeSeconds: null,
+      },
     ]);
     expect(requestTcpReachability).toHaveBeenCalledTimes(2);
+    expect(requestIcmpReachability).toHaveBeenCalledWith("backup.local", 8_000);
   });
 
-  it("degrades devices without dropping provider-backed workloads", async () => {
+  it("degrades invalid host catalogs without affecting core providers", async () => {
     vi.mocked(loadHostCatalog).mockRejectedValue(
       new HostCatalogConfigurationError("Invalid catalog"),
     );
 
     const snapshot = await getDashboardSnapshot();
 
-    expect(snapshot.devices).toHaveLength(8);
+    expect(snapshot.devices).toHaveLength(0);
     expect(snapshot.issues).toContainEqual({
       source: "devices",
       code: "configuration",

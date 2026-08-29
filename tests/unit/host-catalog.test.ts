@@ -31,15 +31,24 @@ afterEach(async () => {
 });
 
 describe("host catalog", () => {
-  it("normalizes valid TCP hosts in file order", async () => {
+  it("normalizes TCP and ICMP hosts while ignoring documented examples", async () => {
     const configPath = await writeCatalog({
       version: 1,
+      _comment: "Examples are not monitored",
+      _examples: [
+        {
+          id: "example",
+          name: "Example",
+          host: "example.local",
+          check: { type: "icmp" },
+        },
+      ],
       hosts: [
         {
           id: "home-assistant",
           name: "Home Assistant",
           host: "192.168.10.40",
-          port: 8123,
+          check: { type: "tcp", port: 8123 },
           url: "http://192.168.10.40:8123",
         },
         {
@@ -47,6 +56,12 @@ describe("host catalog", () => {
           name: "NAS SSH",
           host: "2001:db8::10",
           port: 22,
+        },
+        {
+          id: "backup-server",
+          name: "Backup Server",
+          host: "192.168.10.41",
+          check: { type: "icmp" },
         },
       ],
     });
@@ -67,6 +82,14 @@ describe("host catalog", () => {
         url: undefined,
         kind: "host",
         provider: { type: "tcp", host: "2001:db8::10", port: 22 },
+      },
+      {
+        id: "backup-server",
+        name: "Backup Server",
+        address: "192.168.10.41",
+        url: undefined,
+        kind: "host",
+        provider: { type: "icmp", host: "192.168.10.41" },
       },
     ]);
   });
@@ -99,7 +122,7 @@ describe("host catalog", () => {
     ).rejects.toBeInstanceOf(HostCatalogConfigurationError);
   });
 
-  it("rejects invalid ports and unknown fields", async () => {
+  it("rejects invalid checks and unknown fields", async () => {
     const configPath = await writeCatalog({
       version: 1,
       hosts: [
@@ -107,13 +130,39 @@ describe("host catalog", () => {
           id: "router",
           name: "Router",
           host: "router.local",
-          port: 70_000,
+          check: { type: "tcp", port: 70_000 },
           typo: true,
         },
       ],
     });
 
     await expect(loadHostCatalog(configPath)).rejects.toBeInstanceOf(
+      HostCatalogConfigurationError,
+    );
+  });
+
+  it("rejects hosts without a check and ambiguous legacy ports", async () => {
+    const missingCheckPath = await writeCatalog({
+      version: 1,
+      hosts: [{ id: "router", name: "Router", host: "router.local" }],
+    });
+    const ambiguousCheckPath = await writeCatalog({
+      version: 1,
+      hosts: [
+        {
+          id: "router",
+          name: "Router",
+          host: "router.local",
+          port: 443,
+          check: { type: "icmp" },
+        },
+      ],
+    });
+
+    await expect(loadHostCatalog(missingCheckPath)).rejects.toBeInstanceOf(
+      HostCatalogConfigurationError,
+    );
+    await expect(loadHostCatalog(ambiguousCheckPath)).rejects.toBeInstanceOf(
       HostCatalogConfigurationError,
     );
   });
@@ -132,7 +181,7 @@ describe("host catalog", () => {
             id: "router",
             name: "Router",
             host: "router.local",
-            port: 443,
+            check: { type: "tcp", port: 443 },
           },
         ],
       }),
