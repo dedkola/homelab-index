@@ -31,6 +31,30 @@
       "name": "K3s",
       "host": "127.0.0.1",
       "check": { "type": "tcp", "port": 3100 }
+    },
+    {
+      "id": "samba",
+      "name": "Samba",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
+    },
+    {
+      "id": "vercelab",
+      "name": "vercelab",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
+    },
+    {
+      "id": "bladevault-backend",
+      "name": "BladeVault Backend",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
+    },
+    {
+      "id": "bladevault-unraid",
+      "name": "BladeVault Unraid",
+      "host": "127.0.0.1",
+      "check": { "type": "tcp", "port": 3100 }
     }
   ]
 }

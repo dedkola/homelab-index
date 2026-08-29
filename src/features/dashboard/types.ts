@@ -134,7 +134,6 @@ export interface QuickLink {
   id: string;
   name: string;
   url: string;
-  glyph: string;
 }
 
 export interface DashboardIssue {

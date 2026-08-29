@@ -1,4 +1,4 @@
-const SERVICE_LOGO_PATHS = {
+const SIMPLE_ICON_PATHS = {
   // Kumo and Phosphor do not provide product brand marks. These compact,
   // monochrome SVG paths come from the CC0-licensed Simple Icons collection.
   gitea:
@@ -8,10 +8,56 @@ const SERVICE_LOGO_PATHS = {
   k3s: "M21.46 2.172H2.54A2.548 2.548 0 0 0 0 4.712v14.575a2.548 2.548 0 0 0 2.54 2.54h18.92a2.548 2.548 0 0 0 2.54-2.54V4.713a2.548 2.548 0 0 0-2.54-2.54ZM10.14 16.465 5.524 19.15a1.235 1.235 0 1 1-1.242-2.137L8.9 14.33a1.235 1.235 0 1 1 1.241 2.136zm1.817-4.088h-.006a1.235 1.235 0 0 1-1.23-1.24l.023-5.32a1.236 1.236 0 0 1 1.236-1.23h.005a1.235 1.235 0 0 1 1.23 1.241l-.023 5.32a1.236 1.236 0 0 1-1.235 1.23zm8.17 6.32a1.235 1.235 0 0 1-1.688.453l-4.624-2.67a1.235 1.235 0 1 1 1.235-2.14l4.624 2.67a1.235 1.235 0 0 1 .452 1.688z",
 } as const;
 
-export type ServiceLogoId = keyof typeof SERVICE_LOGO_PATHS;
+const SIMPLE_ICON_IDS = Object.keys(SIMPLE_ICON_PATHS) as Array<
+  keyof typeof SIMPLE_ICON_PATHS
+>;
+
+const SERVICE_LOGO_IDS = [
+  "bladevault-backend",
+  "bladevault-unraid",
+  "samba",
+  "vercelab",
+  ...SIMPLE_ICON_IDS,
+] as const;
+
+export type ServiceLogoId = (typeof SERVICE_LOGO_IDS)[number];
+
+const SERVICE_LOGO_ID_SET = new Set<string>(SERVICE_LOGO_IDS);
+
+// Compact symbol from Samba's official 2010 logo, reduced to one color so it
+// remains legible beside the other service marks at dashboard scale.
+const SAMBA_LOGO_PATH =
+  "m 130,1.125 0,9.5625 -100.420863,0 c -5.47733,0 -9.507576,1.372355 -12.102082,4.096089 -2.594523,2.723885 -3.883305,6.906307 -3.883305,12.580846 l 0,46.479315 c 0,1.74304 0.39056,3.04637 1.1875,3.90625 0.796936,0.836664 2.036319,1.25001 3.71875,1.25 l 89.4375,0 c 2.66317,0 4.52832,0.600945 5.59375,1.8125 1.154,1.21163 1.71867,3.267099 1.71875,6.15625 l 0,6.59375 c 0,2.880644 -0.56819,4.917018 -1.71875,6.125 -1.06224,1.20801 -2.93846,1.8125 -5.59375,1.8125 l -91.40625,0 0,-9.75 -16.09375,21 16.09375,21 0,-9.75 101.53125,0 c 6.92965,0 12.06113,-1.71014 15.34375,-5.15625 3.28241,-3.44608 4.90614,-8.75812 4.90625,-15.9375 l 0,-27.34375 C 138.3124,68.954254 136.80256,64.047023 133.78125,60.875 130.75974,57.614964 126.06593,56 119.6875,56 l -75.71875,0 c -2.567012,0 -4.443063,-0.604382 -5.59375,-1.8125 -1.150741,-1.208 -1.71875,-3.244217 -1.71875,-6.125 l 0,-6.5625 c 0,-2.880685 0.568009,-4.948112 1.71875,-6.15625 1.150687,-1.207981 3.026738,-1.81242 5.59375,-1.8125 l 86.03125,0 0,9.5625 16.09375,-20.96875 z";
+
+function BladeVaultMark() {
+  return (
+    <>
+      <path
+        d="M398,0H64.45C36.1,0,18.39,30.72,32.61,55.25l121.1,209a13.21,13.21,0,0,0,20.77,2.71L214,227.42a13.23,13.23,0,0,0,2.09-16L148.2,94.31a13.2,13.2,0,0,1,11.42-19.83H370.14a13.21,13.21,0,0,0,11.43-6.59l27.85-48.06A13.21,13.21,0,0,0,398,0Z"
+        transform="translate(-27.6)"
+        fill="#2e3417"
+      />
+      <path
+        d="M321.21,392.85a13.21,13.21,0,0,0-20.77-2.72l-39.52,39.52a13.21,13.21,0,0,0-2.09,16l34.66,59.8a13.2,13.2,0,0,0,22.86,0l31.21-53.85a13.23,13.23,0,0,0,0-13.25Z"
+        transform="translate(-27.6)"
+        fill="#2e3417"
+      />
+      <path
+        d="M460.21,175.58Q417,219,373.55,262.26c-7.34,7.32-14.4,7.56-22.51.95-6.58-5.35-13.72-5.32-20.28.1-7.78,6.41-15.08,6.13-22.19-.93Q297.25,251.15,286,239.83c-5.9-5.92-5.9-8.86,0-14.8l60.89-60.9q66.69-66.7,133.38-133.39c6.73-6.73,12.05-5.41,14.9,3.66C499.46,48,501.49,61.89,501.72,78,501,114.72,487.55,148.1,460.21,175.58Zm3.87-83.79c-3.8-.44-7,1.19-7.7,4.88-5.14,26.63-23,44.91-41.05,63.06-5.25,5.28-10.66,10.39-15.91,15.66-3.9,3.93-4.16,8-.91,11.19s7.21,2.81,11.19-1.15c10.65-10.6,21.39-21.14,31.85-31.93a109.62,109.62,0,0,0,27.9-50.38c.33-1.32.54-2.67.7-3.49C470.19,95.2,467.82,92.23,464.08,91.79Z"
+        transform="translate(-27.6)"
+        fill="#c89c3d"
+      />
+      <path
+        d="M172.15,434.85a15.68,15.68,0,0,1-2.26-.28C153,431.51,141.44,421.89,136,405.78s-.28-30.25,11.38-42q57-57.31,114.31-114.38c5.14-5.14,8.41-5.14,13.47-.09q16.61,16.57,33.18,33.17c12.82,12.83,10.23,23.84-7.05,29.44a32.75,32.75,0,0,0-18.59,14.27,524.78,524.78,0,0,1-77.8,95.43c-8.23,8-17.82,13-29.52,13.2C174.27,434.86,173.21,434.9,172.15,434.85Zm-.06-49A11,11,0,0,0,161,396.73a10.5,10.5,0,0,0,10.44,10.43,10.66,10.66,0,0,0,10.77-10.61A10.42,10.42,0,0,0,172.09,385.85Z"
+        transform="translate(-27.6)"
+        fill="#c89c3d"
+      />
+    </>
+  );
+}
 
 export function hasServiceLogo(id: string): id is ServiceLogoId {
-  return Object.hasOwn(SERVICE_LOGO_PATHS, id);
+  return SERVICE_LOGO_ID_SET.has(id);
 }
 
 interface ServiceLogoProps {
@@ -19,15 +65,91 @@ interface ServiceLogoProps {
 }
 
 export function ServiceLogo({ id }: ServiceLogoProps) {
+  if (id === "bladevault-unraid") {
+    return (
+      <svg
+        className="device-logo"
+        data-service-logo={id}
+        viewBox="0 0 474.12 512"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <BladeVaultMark />
+      </svg>
+    );
+  }
+
+  if (id === "bladevault-backend") {
+    return (
+      <svg
+        className="device-logo"
+        data-service-logo={id}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g transform="translate(1 0.75) scale(0.0345)">
+          <BladeVaultMark />
+        </g>
+        <g
+          fill="var(--surface)"
+          stroke="#2e3417"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="11.5" y="12.5" width="11.5" height="9.5" rx="1.75" />
+          <path d="M11.5 15.65h11.5M11.5 18.8h11.5" />
+          <circle cx="14" cy="14.1" r="0.55" fill="#c89c3d" stroke="none" />
+          <circle cx="14" cy="17.25" r="0.55" fill="#c89c3d" stroke="none" />
+          <circle cx="14" cy="20.4" r="0.55" fill="#c89c3d" stroke="none" />
+        </g>
+      </svg>
+    );
+  }
+
+  if (id === "vercelab") {
+    return (
+      <svg
+        className="device-logo"
+        data-service-logo={id}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2.5" />
+          <path d="M3 9h18M3 15h18M9 12h1.5l1.25-2 2.5 4 1.25-2H18" />
+          <circle cx="6.25" cy="6" r="0.75" fill="currentColor" stroke="none" />
+          <circle
+            cx="6.25"
+            cy="18"
+            r="0.75"
+            fill="currentColor"
+            stroke="none"
+          />
+        </g>
+      </svg>
+    );
+  }
+
+  const isSamba = id === "samba";
+
   return (
     <svg
       className="device-logo"
       data-service-logo={id}
-      viewBox="0 0 24 24"
+      viewBox={isSamba ? "0 0 146.1 134.75" : "0 0 24 24"}
       aria-hidden="true"
       focusable="false"
     >
-      <path d={SERVICE_LOGO_PATHS[id]} />
+      <path d={isSamba ? SAMBA_LOGO_PATH : SIMPLE_ICON_PATHS[id]} />
     </svg>
   );
 }

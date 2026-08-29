@@ -17,7 +17,7 @@ test("renders the approved 4K dashboard and API contract", async ({
   };
   expect(dashboard.systems).toHaveLength(2);
   expect(dashboard.unifi).toBeTruthy();
-  expect(dashboard.devices).toHaveLength(5);
+  expect(dashboard.devices).toHaveLength(9);
   expect(dashboard.links).toHaveLength(10);
 
   await page.goto("/");
@@ -36,17 +36,32 @@ test("renders the approved 4K dashboard and API contract", async ({
       "inset(50%)",
     );
   }
-  await expect(page.getByRole("heading", { name: "Proxmox" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Unraid" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "UniFi" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Proxmox", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Unraid", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "UniFi", exact: true }),
+  ).toBeVisible();
   await expect(page.locator("[data-system-logo]")).toHaveCount(3);
+  await expect(page.locator(".quick-link-glyph")).toHaveCount(0);
   const serviceLogos = page.locator("[data-service-logo]");
-  await expect(serviceLogos).toHaveCount(3);
+  await expect(serviceLogos).toHaveCount(7);
   expect(
     await serviceLogos.evaluateAll((logos) =>
       logos.map((logo) => logo.getAttribute("data-service-logo")),
     ),
-  ).toEqual(["gitea", "mysql", "k3s"]);
+  ).toEqual([
+    "gitea",
+    "mysql",
+    "k3s",
+    "samba",
+    "vercelab",
+    "bladevault-backend",
+    "bladevault-unraid",
+  ]);
   await expect(
     page.locator(".system-header").getByText("Online", { exact: true }),
   ).toHaveCount(0);

@@ -292,8 +292,7 @@ button {
 }
 
 .system-glyph,
-.device-glyph,
-.quick-link-glyph {
+.device-glyph {
   display: grid;
   flex: 0 0 auto;
   place-items: center;
@@ -582,17 +581,6 @@ button {
 
 .quick-link-identity {
   min-width: 0;
-  gap: 9px;
-}
-
-.quick-link-glyph {
-  width: 29px;
-  height: 29px;
-  border: 1px solid var(--hairline);
-  border-radius: 7px;
-  background: var(--surface-subtle);
-  color: var(--muted);
-  font-size: 10px;
 }
 
 .quick-link-identity > span:last-child {

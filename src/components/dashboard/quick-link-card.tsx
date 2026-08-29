@@ -13,9 +13,6 @@ export function QuickLinkCard({ link }: QuickLinkCardProps) {
   return (
     <LayerCard className="quick-link-card">
       <div className="quick-link-identity">
-        <div className="quick-link-glyph" aria-hidden="true">
-          {link.glyph}
-        </div>
         <Text as="span" variant="body" bold truncate>
           {link.name}
         </Text>
