@@ -175,7 +175,7 @@ describe("dashboard snapshot integration", () => {
       "unraid",
     ]);
     expect(snapshot.devices).toHaveLength(0);
-    expect(snapshot.links).toHaveLength(10);
+    expect(snapshot.links).toHaveLength(0);
     expect(snapshot.unifi).toMatchObject({
       model: "UCG Ultra",
       clients: { total: 19 },

@@ -101,19 +101,21 @@ export function DashboardShell({ initialSnapshot }: DashboardShellProps) {
             </div>
           </section>
 
-          <section
-            className="dashboard-section"
-            aria-labelledby="quick-links-title"
-          >
-            <h2 id="quick-links-title" className="visually-hidden">
-              Quick links
-            </h2>
-            <div className="links-grid">
-              {snapshot.links.map((link) => (
-                <QuickLinkCard key={link.id} link={link} />
-              ))}
-            </div>
-          </section>
+          {snapshot.links.length > 0 ? (
+            <section
+              className="dashboard-section"
+              aria-labelledby="quick-links-title"
+            >
+              <h2 id="quick-links-title" className="visually-hidden">
+                Quick links
+              </h2>
+              <div className="links-grid">
+                {snapshot.links.map((link) => (
+                  <QuickLinkCard key={link.id} link={link} />
+                ))}
+              </div>
+            </section>
+          ) : null}
         </main>
 
         <footer className="footer">

@@ -18,16 +18,11 @@ test("renders the approved 4K dashboard and API contract", async ({
   expect(dashboard.systems).toHaveLength(2);
   expect(dashboard.unifi).toBeTruthy();
   expect(dashboard.devices).toHaveLength(9);
-  expect(dashboard.links).toHaveLength(10);
+  expect(dashboard.links).toHaveLength(0);
 
   await page.goto("/");
 
-  for (const sectionTitle of [
-    "Network",
-    "Core systems",
-    "LAN workloads",
-    "Quick links",
-  ]) {
+  for (const sectionTitle of ["Network", "Core systems", "LAN workloads"]) {
     await expect(
       page.getByRole("heading", { name: sectionTitle }),
     ).toBeAttached();
@@ -46,7 +41,10 @@ test("renders the approved 4K dashboard and API contract", async ({
     page.getByRole("heading", { name: "UniFi", exact: true }),
   ).toBeVisible();
   await expect(page.locator("[data-system-logo]")).toHaveCount(3);
-  await expect(page.locator(".quick-link-glyph")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Quick links" })).toHaveCount(
+    0,
+  );
+  await expect(page.locator(".quick-link-card")).toHaveCount(0);
   const serviceLogos = page.locator("[data-service-logo]");
   await expect(serviceLogos).toHaveCount(7);
   expect(
@@ -172,5 +170,5 @@ test("renders the approved 4K dashboard and API contract", async ({
     ),
   ).toBe(true);
   expect(layout.headerGap).toBe(5);
-  expect(layout.sectionGaps).toEqual([5, 5, 5]);
+  expect(layout.sectionGaps).toEqual([5, 5]);
 });
