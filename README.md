@@ -273,9 +273,16 @@ chown root:1001 /mnt/user/appdata/homelab-index/k3s.config
 chmod 640 /mnt/user/appdata/homelab-index/k3s.config
 ```
 
-Add another read-only **Path** with container path `/app/k3s.config` and host
-path `/mnt/user/appdata/homelab-index/k3s.config`. The default
-`K3S_CONFIG_PATH=k3s.config` resolves to this mounted file.
+Select **Add another Path, Port, Variable, Label or Device**, choose **Path**,
+and configure the K3s file exactly as follows:
+
+1. Host path: `/mnt/user/appdata/homelab-index/k3s.config`
+2. Container path: `/app/k3s.config`
+3. Access mode: **Read Only**
+
+The default `K3S_CONFIG_PATH=k3s.config` resolves to this mounted file. Click
+**Apply** after adding or changing the path so Unraid recreates the container
+with the mount; rebuilding the image is not required.
 
 For each non-commented key in `.env.example`, select
 **Add another Path, Port, Variable, Label or Device**, choose **Variable**, and
@@ -292,7 +299,18 @@ nano /mnt/user/appdata/homelab-index/.env
 chmod 600 /mnt/user/appdata/homelab-index/.env
 ```
 
-Then start the published image with that file:
+In the Unraid container editor, enable **Advanced View** and add this value to
+**Extra Parameters**:
+
+```text
+--env-file /mnt/user/appdata/homelab-index/.env
+```
+
+Click **Apply** to recreate the container after adding the parameter or changing
+the `.env` file. When using `--env-file`, the same keys do not also need to be
+added individually as Unraid template variables.
+
+The equivalent Unraid terminal command is:
 
 ```bash
 docker pull ghcr.io/dedkola/homelab-index:latest
