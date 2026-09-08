@@ -1,6 +1,5 @@
-onlyBuiltDependencies:
-  - esbuild
-  - workerd
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: false
+  unrs-resolver: false
