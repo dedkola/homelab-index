@@ -30,8 +30,8 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
       undici:
-        specifier: ^8.10.1
-        version: 8.10.1
+        specifier: ^8.10.2
+        version: 8.10.2
       yaml:
         specifier: 2.9.0
         version: 2.9.0
@@ -4376,8 +4376,8 @@ packages:
     resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
     engines: {node: '>=20.18.1'}
 
-  undici@8.10.1:
-    resolution: {integrity: sha512-YQ3WlbqjYMmNpdvDH64jAgLjxuAR9+649calDWhbshYaeQGO2bR4nI94ORJmwI3J9YhoKQnpyGOK+0zlWS5N5Q==}
+  undici@8.10.2:
+    resolution: {integrity: sha512-/y4/bH9YNU5hi9NIrpOuvGXFcxrj3CMrV+/AYpowAYTpHn8gX/XPFjNy766FPoYY0miQhdW977JFWKGNhBdwyQ==}
     engines: {node: '>=22.19.0'}
 
   unenv@2.0.0-rc.24:
@@ -8160,7 +8160,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.2
-      undici: 8.10.1
+      undici: 8.10.2
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -9270,7 +9270,7 @@ snapshots:
 
   undici@7.29.0: {}
 
-  undici@8.10.1: {}
+  undici@8.10.2: {}
 
   unenv@2.0.0-rc.24:
     dependencies:
